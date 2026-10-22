@@ -43,3 +43,30 @@ def verificar_senha(senha):
             print("Sem caracter especial")
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Detecção de riscos
+
+def risk_detection(senhas):
+        c = 0
+        lista_repetida = []
+        lista = []
+        for posicao, senha in enumerate(senhas):
+                if senha in senhas:
+                        if senha not in lista:
+                               lista.append(posicao)
+                               lista.append(senha)
+                        else:
+                               x = lista.index(senha)
+                               lista_repetida.append(lista[x-1])
+                               lista_repetida.append(lista[x])
+                               lista_repetida.append(posicao)
+                               lista_repetida.append(senha)
+        return lista_repetida
+
+lista = []
+senha_repetida = risk_detection(lista)
+if senha_repetida == 0:
+        print("Não há senha repetida.")
+else:
+        print(f"Há {int(len(senha_repetida))//2} senhas repetidas.")
+print(risk_detection(lista))
