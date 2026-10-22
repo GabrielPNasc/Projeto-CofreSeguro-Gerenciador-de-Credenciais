@@ -47,7 +47,6 @@ def verificar_senha(senha):
 # Detecção de riscos
 
 def risk_detection(senhas):
-        c = 0
         lista_repetida = []
         lista = []
         for posicao, senha in enumerate(senhas):
