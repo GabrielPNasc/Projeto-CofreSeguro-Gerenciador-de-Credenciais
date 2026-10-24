@@ -72,6 +72,34 @@ print(risk_detection(lista))
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Ler
+
+def ler_credenciais():
+    if len(nome) == 0:
+        print("Nenhuma credencial cadastrada.")
+        return
+    print("Credenciais:")
+    print("-" * 30)
+    for i in range(len(nome)):
+        print(f"Nome do serviço: {nome[i]}")
+        print(f"Usuário ou e-mail: {usuario_email[i]}")
+        print(f"Senha: {senha[i][:2]}{'*' * (len(senha[i]) - 2)}")  # Mostra apenas os dois primeiros caracteres da senha
+        print(f"Categoria: {categoria_credenciais[i]}")
+        print(f"Observações: {observacoes[i]}")
+        print(f"Data do último cadastro ou alteração: {data_ultimo_cadastro_ou_alteracao[i]}")
+        print("-" * 30)
+        print("Deseja revelar a senha completa? (s/n)")
+        if input().lower() == "s":
+        # Terá que usar a senha do login para revelar a senha
+            print("Digite a senha do login para revelar a senha completa: ")
+            senha_revelada = input()
+            if senha_revelada == senha_login[usuario.index(usuario_logado)]:
+                print(f"Login: {usuario_email[i]} - Senha: {senha[i]}")
+            else:
+                print("Senha incorreta. Não é possível revelar a senha.")
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Atualizar
 
 def atualizar_credencial():
@@ -105,3 +133,4 @@ def atualizar_credencial():
         print("Credencial atualizada com sucesso!")
     else:
         print("Credencial não encontrada.")
+
