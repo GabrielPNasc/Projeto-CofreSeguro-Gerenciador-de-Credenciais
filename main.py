@@ -354,7 +354,7 @@ def adicionar_credencial():
     nome_credencial = input("Digite o nome do serviço: ")
     usuario_email_credencial = input("Digite o usuário ou e-mail: ")
 
-    # Mostra as categorias existentes e a força mínima de cada uma
+
     consultar_categorias()
     print("Deseja cadastrar uma nova categoria ou mudar a força mínima de uma existente? (s/n)")
     if input().lower() == "s":
@@ -370,7 +370,7 @@ def adicionar_credencial():
             categoria_credencial = "outros"
             print("A credencial foi colocada em 'outros'.")
 
-    # Se o usuário escolher uma categoria já existente, o sistema deve verificar se a senha atende à força mínima exigida para aquela categoria. Se não atender, o sistema deve solicitar que o usuário digite uma nova senha até que ela atenda à força mínima exigida.
+    
     minimo = forca_minima[categoria.index(categoria_credencial)]
     while True:
         senha_credencial = input("Digite a senha: ")
@@ -515,7 +515,8 @@ def excluir_credencial():
     if encontrou == False:
         print("Credencial não encontrada.")
 
-
+with open("credenciais.txt", "a", encoding="utf-8") as file:
+    pass
 
 login() #chama login antes do menu
 
