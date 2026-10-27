@@ -499,7 +499,7 @@ def excluir_credencial():
 
 
 
-
+#loop principal
 while True:
     opcao = menu()
     if opcao == "7":
