@@ -289,7 +289,6 @@ def login():
         if usuario_digitado in usuario and senha_login[usuario.index(usuario_digitado)] == senha_digitada:
             usuario_logado = usuario_digitado
             print("Login realizado com sucesso!")
-            menu()
         else:
             print("Usuário ou senha incorretos. Tente novamente.")
             login()
@@ -484,20 +483,41 @@ def detectar_risco():
 
 
 def excluir_credencial():
+
+    print("Excluir credencial")
+
+    # antes de excluir, tem que confirmar o login e a senha
+
+    print("Para excluir uma credencial, confirme seu login.")
+    usuario_digitado = input("Digite o nome de usuário: ")
+    senha_digitada = input("Digite a senha: ")
+
+
+    if usuario_digitado in usuario and senha_login[usuario.index(usuario_digitado)] == senha_digitada:
+        print("Login confirmado!")
+    else:
+        print("Usuário ou senha incorretos. Não é possível excluir a credencial.")
+        return  # sai da função sem excluir nada
+
     nome_credencial = input("Digite o nome do serviço que deseja excluir: ")
     with open("credenciais.txt", "r", encoding="utf-8") as file:
         linhas = file.readlines()
 
+    encontrou = False
     with open("credenciais.txt", "w", encoding="utf-8") as file:
         for linha in linhas:
             if linha.strip().split("|")[0] != nome_credencial:
                 file.write(linha)
             else:
+                encontrou = True
                 print(f"Credencial '{nome_credencial}' excluída com sucesso!")
 
+    if encontrou == False:
+        print("Credencial não encontrada.")
 
 
 
+login() #chama login antes do menu
 
 #loop principal
 while True:
