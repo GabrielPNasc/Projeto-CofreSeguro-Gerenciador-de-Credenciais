@@ -30,6 +30,29 @@ def menu():
         else:
             print("Opção inválida. Tente novamente.")
 
+# ------------------------- #
+# Para corrigir o bug de o sistema tentar ler "credenciais.txt" antes do arquivo ter sido criado
+
+# Lê o arquivo e coloca as credenciais nas listas
+def carregar_credenciais():
+    with open("credenciais.txt", "r", encoding="utf-8") as file:
+        for linha in file:
+            linha = linha.strip().split("|")
+            if len(linha) >= 6:  # ignora linha vazia ou incompleta
+                nome.append(linha[0])
+                usuario_email.append(linha[1])
+                senha.append(linha[2])
+                categoria_credenciais.append(linha[3])
+                observacoes.append(linha[4])
+                data_ultimo_cadastro_ou_alteracao.append(linha[5])
+
+
+# Escreve tudo que tem nas listas no arquivo
+def salvar_credenciais():
+    with open("credenciais.txt", "w", encoding="utf-8") as file:
+        for i in range(len(nome)):
+            file.write(f"{nome[i]}|{usuario_email[i]}|{senha[i]}|{categoria_credenciais[i]}|{observacoes[i]}|{data_ultimo_cadastro_ou_alteracao[i]}\n")
+
 
 
 #-------------CRUD---------#
@@ -388,6 +411,7 @@ def adicionar_credencial():
     categoria_credenciais.append(categoria_credencial)
     observacoes.append(observacoes_credencial)
     data_ultimo_cadastro_ou_alteracao.append(data_cadastro)
+    salvar_credenciais()
 
     print("Credencial adicionada com sucesso!")
 
@@ -451,9 +475,8 @@ def atualizar_credencial():
         senha[index] = nova_senha
         observacoes[index] = input("Digite novas observações (opcional): ")
         data_ultimo_cadastro_ou_alteracao[index] = date.today().strftime("%d/%m/%Y")
+        salvar_credenciais()
         print("Credencial atualizada com sucesso!")
-    else:
-        print("Credencial não encontrada.")
 
 
 
@@ -483,15 +506,12 @@ def detectar_risco():
 
 
 def excluir_credencial():
-
     print("Excluir credencial")
 
     # antes de excluir, tem que confirmar o login e a senha
-
     print("Para excluir uma credencial, confirme seu login.")
     usuario_digitado = input("Digite o nome de usuário: ")
     senha_digitada = input("Digite a senha: ")
-
 
     if usuario_digitado in usuario and senha_login[usuario.index(usuario_digitado)] == senha_digitada:
         print("Login confirmado!")
@@ -500,23 +520,25 @@ def excluir_credencial():
         return  # sai da função sem excluir nada
 
     nome_credencial = input("Digite o nome do serviço que deseja excluir: ")
-    with open("credenciais.txt", "r", encoding="utf-8") as file:
-        linhas = file.readlines()
-
-    encontrou = False
-    with open("credenciais.txt", "w", encoding="utf-8") as file:
-        for linha in linhas:
-            if linha.strip().split("|")[0] != nome_credencial:
-                file.write(linha)
-            else:
-                encontrou = True
-                print(f"Credencial '{nome_credencial}' excluída com sucesso!")
-
-    if encontrou == False:
+    if nome_credencial in nome:
+        i = nome.index(nome_credencial)
+        nome.pop(i)
+        usuario_email.pop(i)
+        senha.pop(i)
+        categoria_credenciais.pop(i)
+        observacoes.pop(i)
+        data_ultimo_cadastro_ou_alteracao.pop(i)
+        salvar_credenciais()
+        print(f"Credencial '{nome_credencial}' excluída com sucesso!")
+    else:
         print("Credencial não encontrada.")
+
+
 
 with open("credenciais.txt", "a", encoding="utf-8") as file:
     pass
+
+carregar_credenciais()
 
 login() #chama login antes do menu
 
@@ -539,4 +561,3 @@ while True:
         cadastrar_categoria(input("Digite o nome da nova categoria: ").lower())
     print("-"*30)
     detectar_risco()
-
