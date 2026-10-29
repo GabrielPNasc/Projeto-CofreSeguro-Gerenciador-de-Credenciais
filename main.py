@@ -5,11 +5,11 @@ from datetime import date
 from datetime import date
 
 categoria = {
-    "banco": "senha Forte",
-    "trabalho": "senha Média",
-    "redes sociais": "senha Boa",
-    "estudos": "senha Forte",
-    "outros": "senha Fraca"
+    "banco": 3,
+    "trabalho": 2,
+    "redes sociais": 2,
+    "estudos": 3 ,
+    "outros": 1
 }
 
 def menu():
@@ -41,7 +41,9 @@ def adicionar_credencial():
     nome_credencial = input("Digite o nome do serviço: ")
     usuario_email_credencial = input("Digite o usuário ou e-mail: ")
     # Mostra as categorias existentes e a força mínima de cada uma
+    print("-" *15)
     consultar_categorias()
+    print("-" *15)
 
     categoria_credencial = input("Digite a categoria: ").lower()
     if categoria_credencial not in categoria:
@@ -58,9 +60,11 @@ def adicionar_credencial():
 
     while True:
         forca_senha = analise_forca_senha(senha_credencial)
-        print(forca_senha)
-        if forca_senha == "senha forte":
-            break
+
+        if forca_senha in [1,2,3]:
+            if forca_senha >= categoria[categoria_credencial]:
+                print(f"Senha aceita,nivel:{forca_senha}")
+                break
         else:
             print(f"A senha não atende a força mínima exigida para a categoria '{categoria_credencial}'.")
             senha_credencial = input("Digite uma nova senha: ")
@@ -100,6 +104,8 @@ def ler_credenciais():
                 print(f"Observações: {linha[4]}")
                 print(f"Data do último cadastro ou alteração: {linha[5]}")
                 print("-" * 30)
+
+
 
                 
 def atualizar_credencial():
@@ -199,15 +205,13 @@ def analise_forca_senha(senha):
             if senha[i]!=senha[i].upper():
                 for i in range(len(senha)):
                         if senha[i]!=senha[i].lower():
-                            for i in senha:
-                                if i.isdigit()== False:
+
                                     for i in lista:
                                         if i in senha:
                                             caracter = True
                                         else:
                                             pass
-                                else:
-                                    num = True
+                                
                         else:
                             status_minus = True
             else:
@@ -215,12 +219,20 @@ def analise_forca_senha(senha):
     else:
         tamanho = False
 
-    if status_maisculo == False and status_minus == False and tamanho == False and num == False and caracter == False:
-        return "senha fraca"
-    if status_maisculo == False and status_minus == False and tamanho == False:
-        return "senha media"
+    for i in senha:
+         if i.isdigit() == True:
+              num = True
+
+    if tamanho!= False :
+        if num != False or status_minus != False:
+            return 1
+    if tamanho!= False and status_minus != False  and num != False:
+        return 2
     if status_maisculo != False and status_minus != False and tamanho != False and num != False and caracter != False:
-        return "senha forte"
+        return 3
+    else:
+        return " "
+
     
 #-----------------------------#
 
@@ -245,244 +257,9 @@ def risk_detection(senhas):
                                lista_repetida.append(senha)
         return lista_repetida
 
-lista = []
-senha_repetida = risk_detection(lista)
-if senha_repetida == 0:
-        print("Não há senha repetida.")
-else:
-        print(f"Há {int(len(senha_repetida))//2} senhas repetidas.")
-print(risk_detection(lista))
+
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# login e listas
-
-nome = []
-usuario_email = []
-senha = []
-categoria = ["banco", "rede social", "estudo", "trabalho", "outros"]
-forca_minima = [0, 0, 0, 0, 0]  # Força mínima de senha para cada categoria
-categoria_credenciais = []   
-observacoes = []
-data_ultimo_cadastro_ou_alteracao = []
-usuario = []
-senha_login = []
-usuario_logado = ""  # guarda quem fez login
-
-# Login antes de acessar o CRUD     
-
-def login():
-    global usuario_logado
-    print("tatu: gerenciamento de credenciais.")
-    print("Login ou criar conta? (l/c)")
-    resposta = input().lower()
-    if resposta == "c":
-        print("Criar conta")
-        usuario.append(input("Digite o nome de usuário: "))
-        senha_login.append(input("Digite a senha: "))
-        print("Conta criada com sucesso! Agora faça o login.")
-        login()
-    elif resposta == "l":
-        print("Login")
-        usuario_digitado = input("Digite o nome de usuário: ")
-        senha_digitada = input("Digite a senha: ")
-        if usuario_digitado in usuario and senha_login[usuario.index(usuario_digitado)] == senha_digitada:
-            usuario_logado = usuario_digitado
-            print("Login realizado com sucesso!")
-            menu()
-        else:
-            print("Usuário ou senha incorretos. Tente novamente.")
-            login()
-    else:
-        print("Opção inválida. Tente novamente.")
-        login()
-
-# Analisar força da senha
-
-def forca_da_senha(senha_digitada):
-    forca = 0
-    if len(senha_digitada) >= 8:
-        forca = forca + 1
-    tem_maiuscula = False
-    tem_numero = False
-    tem_simbolo = False
-    for letra in senha_digitada:
-        if letra.isupper():
-            tem_maiuscula = True
-        elif letra.isdigit():
-            tem_numero = True
-        elif not letra.isalnum():
-            tem_simbolo = True
-    if tem_maiuscula:
-        forca = forca + 1
-    if tem_numero:
-        forca = forca + 1
-    if tem_simbolo:
-        forca = forca + 1
-    return forca
-
-
-# Pedir força mínima (0 a 4)
-
-def pedir_forca():
-    print("0 - Fraca, 1 - Média, 2 - Boa, 3 - Forte, 4 - Muito Forte")
-    forca = input("Força mínima da senha para essa categoria (0 a 4): ")
-    while forca not in ["0", "1", "2", "3", "4"]:
-        forca = input("Digite um número de 0 a 4: ")
-    return int(forca)
-
-# Categorias
-
-def consultar_categorias():
-    print("Categorias:")
-    for i in range(len(categoria)):
-        print(f"{categoria[i]} - força mínima: {forca_minima[i]}")
-
-def cadastrar_categoria(nome_categoria):
-    if nome_categoria in categoria:
-        # se já existe, só muda a força mínima
-        forca_minima[categoria.index(nome_categoria)] = pedir_forca()
-        print(f"Força mínima de {nome_categoria} atualizada!")
-    else:
-        categoria.append(nome_categoria)
-        forca_minima.append(pedir_forca())
-        print(f"Categoria {nome_categoria} cadastrada com sucesso!")
-
-# Adicionar
-
-def adicionar_credencial():
-    print("Adicionar credencial")
-    nome_credencial = input("Digite o nome do serviço: ")
-    usuario_email_credencial = input("Digite o usuário ou e-mail: ")
-
-    # Mostra as categorias existentes e a força mínima de cada uma
-    consultar_categorias()
-    print("Deseja cadastrar uma nova categoria ou mudar a força mínima de uma existente? (s/n)")
-    if input().lower() == "s":
-        cadastrar_categoria(input("Nome da categoria: ").lower())
-        consultar_categorias()
-
-    categoria_credencial = input("Digite a categoria: ").lower()
-    if categoria_credencial not in categoria:
-        print("Categoria não existe. Deseja cadastrar essa nova categoria? (s/n)")
-        if input().lower() == "s":
-            cadastrar_categoria(categoria_credencial)
-        else:
-            categoria_credencial = "outros"
-            print("A credencial foi colocada em 'outros'.")
-
-    # Se o usuário escolher uma categoria já existente, o sistema deve verificar se a senha atende à força mínima exigida para aquela categoria. Se não atender, o sistema deve solicitar que o usuário digite uma nova senha até que ela atenda à força mínima exigida.
-    minimo = forca_minima[categoria.index(categoria_credencial)]
-    while True:
-        senha_credencial = input("Digite a senha: ")
-        if forca_da_senha(senha_credencial) >= minimo:
-            break
-        print(f"Senha fraca! Força {forca_da_senha(senha_credencial)}, mas a categoria {categoria_credencial} exige {minimo}.")
-        print("Dica: use 8+ caracteres, letra maiúscula, número e símbolo.")
-
-    observacoes_credencial = input("Digite observações (opcional): ")
-    data_cadastro = date.today().strftime("%d/%m/%Y")  # Data do cadastro no formato dd/mm/aaaa 
-
-    nome.append(nome_credencial)
-    usuario_email.append(usuario_email_credencial)
-    senha.append(senha_credencial)
-    categoria_credenciais.append(categoria_credencial)
-    observacoes.append(observacoes_credencial)
-    data_ultimo_cadastro_ou_alteracao.append(data_cadastro)
-
-    print("Credencial adicionada com sucesso!")
-
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Ler
-
-def ler_credenciais():
-    if len(nome) == 0:
-        print("Nenhuma credencial cadastrada.")
-        return
-    print("Credenciais:")
-    print("-" * 30)
-    for i in range(len(nome)):
-        print(f"Nome do serviço: {nome[i]}")
-        print(f"Usuário ou e-mail: {usuario_email[i]}")
-        print(f"Senha: {senha[i][:2]}{'*' * (len(senha[i]) - 2)}")  # Mostra apenas os dois primeiros caracteres da senha
-        print(f"Categoria: {categoria_credenciais[i]}")
-        print(f"Observações: {observacoes[i]}")
-        print(f"Data do último cadastro ou alteração: {data_ultimo_cadastro_ou_alteracao[i]}")
-        print("-" * 30)
-        print("Deseja revelar a senha completa? (s/n)")
-        if input().lower() == "s":
-        # Terá que usar a senha do login para revelar a senha
-            print("Digite a senha do login para revelar a senha completa: ")
-            senha_revelada = input()
-            if senha_revelada == senha_login[usuario.index(usuario_logado)]:
-                print(f"Login: {usuario_email[i]} - Senha: {senha[i]}")
-            else:
-                print("Senha incorreta. Não é possível revelar a senha.")
-
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Atualizar
-
-def atualizar_credencial():
-    print("Atualizar credencial")
-    nome_credencial = input("Digite o nome do serviço que deseja atualizar: ")
-    if nome_credencial in nome:
-        index = nome.index(nome_credencial)
-        usuario_email[index] = input("Digite o novo usuário ou e-mail: ")
-
-
-        consultar_categorias()
-        nova_categoria = input("Digite a nova categoria: ").lower()
-        if nova_categoria not in categoria:
-            print("Categoria não existe. Deseja cadastrar essa nova categoria? (s/n)")
-            if input().lower() == "s":
-                cadastrar_categoria(nova_categoria)
-            else:
-                nova_categoria = "outros"
-                print("A credencial foi colocada em 'outros'.")
-        categoria_credenciais[index] = nova_categoria
-
-        minimo = forca_minima[categoria.index(nova_categoria)]
-        nova_senha = input("Digite a nova senha: ")
-        while forca_da_senha(nova_senha) < minimo:
-            print(f"Senha fraca! Força {forca_da_senha(nova_senha)}, mas a categoria {nova_categoria} exige {minimo}.")
-            print("Dica: use 8+ caracteres, letra maiúscula, número e símbolo.")
-            nova_senha = input("Digite a nova senha: ")
-        senha[index] = nova_senha
-        observacoes[index] = input("Digite novas observações (opcional): ")
-        data_ultimo_cadastro_ou_alteracao[index] = date.today().strftime("%d/%m/%Y")
-        print("Credencial atualizada com sucesso!")
-    else:
-        print("Credencial não encontrada.")
-
-
-
-
-
-
-def detectar_risco():
-    lista_repetida = []
-    lista = []
-    with open("credenciais.txt", "r", encoding="utf-8") as file:
-        for linha in file:
-            linha = linha.strip().split("|")
-            posicao_linha = 0
-            if linha[2] not in lista:
-                lista.append(linha[posicao_linha])
-                lista.append(linha[2])
-            else:
-                x = lista.index(linha[2])
-                lista_repetida.append(lista[x-1])
-                lista_repetida.append(lista[x])
-                lista_repetida.append(linha[0])
-                lista_repetida.append(linha[2])
-            posicao_linha += 1
-        for i in range(0, len(lista_repetida), 2):
-            print(f"Serviço: {lista_repetida[i]}, Senha: {lista_repetida[i+1][:2]}{'*' * (len(lista_repetida[i+1]) - 2)} - Risco de senha repetida!")
-#-----------------------------#
-
-
 def excluir_credencial():
     nome_credencial = input("Digite o nome do serviço que deseja excluir: ")
     with open("credenciais.txt", "r", encoding="utf-8") as file:
@@ -517,5 +294,14 @@ while True:
     elif opcao == "5":
         cadastrar_categoria(input("Digite o nome da nova categoria: ").lower())
     print("-"*30)
-    detectar_risco()
-
+    lista = []
+    with open("credenciais.txt", "r", encoding="utf-8") as file:
+                for linha in file:
+                    linha = linha.strip().split("|")
+                    lista.append(linha[2])
+                    
+    senha_repetida = risk_detection(lista)
+    if senha_repetida == 0:
+        print("Não há senha repetida.")
+    else:
+        print(f"Há {int(len(senha_repetida))//2} senhas repetidas.")
