@@ -1,8 +1,11 @@
 
 from datetime import date
+import os
+from datetime import date
+import time
 
 #---pedro|pedro@gmail.com|password|banco|observacao|11-07-2026:7:00pm REGRA DE NEGOCIO DE ORGANIZACAO--------
-from datetime import date
+
 
 categoria = {
     "banco": 3,
@@ -12,7 +15,11 @@ categoria = {
     "outros": 1
 }
 
+def limpar_terminal():
+    # 'nt' significa Windows, caso contrário é Linux/Mac
+    os.system('cls' if os.name == 'nt' else 'clear')
 def menu():
+    limpar_terminal()
     while True:
         print("\nMenu:")
         print("-" * 30)
@@ -37,6 +44,7 @@ def menu():
 
 # Adicionar
 def adicionar_credencial():
+    limpar_terminal()
     print("Adicionar credencial")
     nome_credencial = input("Digite o nome do serviço: ")
     usuario_email_credencial = input("Digite o usuário ou e-mail: ")
@@ -90,6 +98,7 @@ def adicionar_credencial():
 
     
 def ler_credenciais():
+    limpar_terminal()
     with open("credenciais.txt", "r", encoding="utf-8") as file:
             for linha in file:
                 linha = linha.strip().split("|")
@@ -106,12 +115,21 @@ def ler_credenciais():
                 print(f"Observações: {linha[4]}")
                 print(f"Data do último cadastro ou alteração: {linha[5]}")
                 print("-" * 30)
+    input_saida = input("Pressione Enter para continuar...")  
+
 
 
 
                 
 def atualizar_credencial():
+    limpar_terminal()
     print("Atualizar credencial")
+    print("-" * 30)
+    print("Serviços cadastrados:")
+    with open("credenciais.txt", "r", encoding="utf-8") as file:
+        for linha in file:
+            linha = linha.split("|")
+            print(f"- {linha[0]}")
     nome_credencial = input("Digite o nome do serviço que deseja atualizar: ")
     with open("credenciais.txt", "r", encoding="utf-8") as file:
             
@@ -179,12 +197,16 @@ def atualizar_credencial():
 
 
 def consultar_categorias():
+    limpar_terminal()
     for i in categoria:
         print(f"Categoria: {i}, Força mínima: {categoria[i]}")
+
+    input_saida = input("Pressione Enter para continuar...")  
 
 
 
 def cadastrar_categoria(categoria_nova):
+    
     #perguntar_forca_minima
     forca_minima = input("Digite a força mínima para a nova categoria(senha Fraca, senha Média, senha Forte): ").lower()
     if forca_minima == "senha fraca":
@@ -273,6 +295,12 @@ def risk_detection(senhas):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def excluir_credencial():
+    print("-" * 30)
+    print("Serviços cadastrados:")
+    with open("credenciais.txt", "r", encoding="utf-8") as file:
+        for linha in file:
+            linha = linha.split("|")
+            print(f"- {linha[0]}")
     nome_credencial = input("Digite o nome do serviço que deseja excluir: ")
     with open("credenciais.txt", "r", encoding="utf-8") as file:
         linhas = file.readlines()
@@ -304,7 +332,9 @@ while True:
     elif opcao == "4":  
         consultar_categorias()
     elif opcao == "5":
+        limpar_terminal()
         cadastrar_categoria(input("Digite o nome da nova categoria: ").lower())
+    limpar_terminal()
     print("-"*30)
     lista = []
     with open("credenciais.txt", "r", encoding="utf-8") as file:
@@ -317,3 +347,4 @@ while True:
         print("Não há senha repetida.")
     else:
         print(f"Há {int(len(senha_repetida))//2} senhas repetidas.")
+    print("-"*30)
