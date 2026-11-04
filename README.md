@@ -97,7 +97,7 @@ Nubank|pedro@gmail.com|Senha@123|banco|conta principal|11/07/2026|
 ## ⚠️ Avisos importantes
 
 - As senhas são salvas em **texto puro** no `credenciais.txt`. Use o projeto para fins de estudo e **não armazene senhas reais** nele.
-- Adicione `credenciais.txt` ao `.gitignore` para nunca enviá-lo ao GitHub.
+
 
 ## 🛣️ Próximos passos
 
@@ -105,8 +105,11 @@ Nubank|pedro@gmail.com|Senha@123|banco|conta principal|11/07/2026|
 - [ ] Proteger o acesso com uma senha mestra
 - [ ] Mostrar quais serviços compartilham a mesma senha
 - [ ] Gerador de senhas fortes
-- [ ] Interface gráfica
+
 
 ## 👨‍💻 Autor
 
 **Gabriel Nascimento** — [@GabrielPNasc](https://github.com/GabrielPNasc)
+**Pedro de Almeida** — [@PedroALMonteiro](https://github.com/PedroALMonteiro)
+**Rafael Goes** — [rafaelgcblima](https://github.com/rafaelgcblima)
+**Vitor Souza** — [vitoryki](https://github.com/vitoryki)
