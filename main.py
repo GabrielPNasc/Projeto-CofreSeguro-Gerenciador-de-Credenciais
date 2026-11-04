@@ -195,30 +195,28 @@ def cadastrar_categoria(categoria_nova):
 def analise_forca_senha(senha):
     status_maisculo = False
     status_minus = False
-    tamanho = True
+    tamanho = False
     num = False
     caracter = False
 
     lista = ["!", '@', "#", '$', '%', "&", "*", "-", "_", "?", "/","+","="]
+
     if len(senha) >=6:
-        for i in range(len(senha)):
-            if senha[i]!=senha[i].upper():
-                for i in range(len(senha)):
-                        if senha[i]!=senha[i].lower():
+        tamanho = True
 
-                                    for i in lista:
-                                        if i in senha:
-                                            caracter = True
-                                        else:
-                                            pass
-                                
-                        else:
-                            status_minus = True
-            else:
+    for i in range(len(senha)):
+        if senha[i]==senha[i].upper():
                 status_maisculo = True
-    else:
-        tamanho = False
 
+    for i in range(len(senha)):
+        if senha[i]==senha[i].lower():
+            status_minus = True
+
+
+    for i in lista:
+        if i in senha:
+            caracter = True
+        
     for i in senha:
          if i.isdigit() == True:
               num = True
@@ -226,10 +224,13 @@ def analise_forca_senha(senha):
     if tamanho!= False :
         if num != False or status_minus != False:
             return 1
-    if tamanho!= False and status_minus != False  and num != False:
+        
+    if tamanho!= False and status_minus != False  and num != False and status_maisculo != False:
         return 2
+    
     if status_maisculo != False and status_minus != False and tamanho != False and num != False and caracter != False:
         return 3
+    
     else:
         return " "
 
@@ -281,7 +282,7 @@ while True:
     opcao = menu()
     if opcao == "7":
         break
-    if opcao == "1":
+    elif opcao == "1":
         adicionar_credencial()
     elif opcao == "2":
         ler_credenciais()
