@@ -109,7 +109,7 @@ Nubank|pedro@gmail.com|Senha@123|banco|conta principal|11/07/2026|
 
 ## 👨‍💻 Autores
 
-**Gabriel Nascimento** — [@GabrielPNasc](https://github.com/GabrielPNasc)|
-**Pedro de Almeida** — [@PedroALMonteiro](https://github.com/PedroALMonteiro)|
-**Rafael Goes** — [rafaelgcblima](https://github.com/rafaelgcblima)|
+**Gabriel Nascimento** — [@GabrielPNasc](https://github.com/GabrielPNasc) |
+**Pedro de Almeida** — [@PedroALMonteiro](https://github.com/PedroALMonteiro) |
+**Rafael Goes** — [rafaelgcblima](https://github.com/rafaelgcblima) |
 **Vitor Souza** — [vitoryki](https://github.com/vitoryki)
