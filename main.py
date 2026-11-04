@@ -305,8 +305,4 @@ while True:
     if senha_repetida == 0:
         print("Não há senha repetida.")
     else:
-<<<<<<< Updated upstream
         print(f"Há {int(len(senha_repetida))//2} senhas repetidas.")
-=======
-        print(f"Há {int(len(senha_repetida))//2} senhas repetidas.")
->>>>>>> Stashed changes
