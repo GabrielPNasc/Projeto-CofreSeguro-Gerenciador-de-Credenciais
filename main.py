@@ -60,14 +60,16 @@ def adicionar_credencial():
 
     while True:
         forca_senha = analise_forca_senha(senha_credencial)
-
+       
         if forca_senha in [1,2,3]:
+            
             if forca_senha >= categoria[categoria_credencial]:
                 print(f"Senha aceita,nivel:{forca_senha}")
                 break
-        else:
-            print(f"A senha não atende a força mínima exigida para a categoria '{categoria_credencial}'.")
-            senha_credencial = input("Digite uma nova senha: ")
+            
+            else:
+                print(f"A senha não atende a força mínima exigida para a categoria '{categoria_credencial}'.")
+                senha_credencial = input("Digite uma nova senha: ")
 
 
     observacoes_credencial = input("Digite observações (opcional): ")
@@ -119,14 +121,14 @@ def atualizar_credencial():
 
                 if nome_credencial == linha[0]:
                     linha_antiga = linha.copy()  # Copia a linha antiga para comparação posterior
-                    credencial = input("Digite o campo que deseja atualizar (nome, usuário, senha, categoria, observações): ").lower()
+                    credencial = input("Digite o campo que deseja atualizar (nome, usuario, senha, categoria, observacoes): ").lower()
 
                     if credencial == "nome":
                         nova_credencial = input("Digite o novo nome do serviço: ")
                         linha[0] = nova_credencial
                         
 
-                    elif credencial == "usuário":
+                    elif credencial == "usuario":
                         novo_usuario = input("Digite o novo usuário ou e-mail: ")
                         linha[1] = novo_usuario
 
@@ -148,7 +150,7 @@ def atualizar_credencial():
                                 print("A credencial foi colocada em 'outros'.")
 
                         linha[3] = nova_categoria
-                    elif credencial == "observações":
+                    elif credencial == "observacoes":
                         novas_observacoes = input("Digite as novas observações: ")
                         linha[4] = novas_observacoes
 
@@ -166,7 +168,7 @@ def atualizar_credencial():
                             if l.strip() != "|".join(linha_antiga).strip():#se NAO FOR A LINHA antiga,ele escreve a linha do arquivo
                                 file.write(l)
                             else:#SE FOR A LINHA DO ARQUIVO, ELE ESCREVE A LINHA ATUALIZADA
-                                file.write("|".join(linha) + "\n")
+                                file.write("|".join(linha) )
                             
                     
 
@@ -185,6 +187,12 @@ def consultar_categorias():
 def cadastrar_categoria(categoria_nova):
     #perguntar_forca_minima
     forca_minima = input("Digite a força mínima para a nova categoria(senha Fraca, senha Média, senha Forte): ").lower()
+    if forca_minima == "senha fraca":
+        forca_minima = 1
+    if forca_minima == "senha média":
+        forca_minima = 2
+    if forca_minima == "senha forte":
+        forca_minima = 3
     categoria[categoria_nova] = forca_minima
 
 
@@ -205,12 +213,14 @@ def analise_forca_senha(senha):
         tamanho = True
 
     for i in range(len(senha)):
-        if senha[i]==senha[i].upper():
+        if senha[i].isdigit() == False:
+            if senha[i]==senha[i].upper():
                 status_maisculo = True
 
     for i in range(len(senha)):
-        if senha[i]==senha[i].lower():
-            status_minus = True
+        if senha[i].isdigit() == False:
+            if senha[i]==senha[i].lower():
+                status_minus = True
 
 
     for i in lista:
@@ -221,18 +231,19 @@ def analise_forca_senha(senha):
          if i.isdigit() == True:
               num = True
 
+    if status_maisculo != False and status_minus != False and tamanho != False and num != False and caracter != False:
+            return 3
+    
+    if tamanho!= False and status_minus != False  and num != False and status_maisculo != False:
+            return 2
+    
     if tamanho!= False :
         if num != False or status_minus != False:
             return 1
         
-    if tamanho!= False and status_minus != False  and num != False and status_maisculo != False:
-        return 2
     
-    if status_maisculo != False and status_minus != False and tamanho != False and num != False and caracter != False:
-        return 3
     
-    else:
-        return " "
+    
 
     
 #-----------------------------#
