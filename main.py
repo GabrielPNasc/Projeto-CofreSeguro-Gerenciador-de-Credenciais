@@ -1,8 +1,7 @@
 
-from datetime import date
+from datetime import datetime
 import os
-from datetime import date
-import time
+
 
 #---pedro|pedro@gmail.com|password|banco|observacao|11-07-2026:7:00pm REGRA DE NEGOCIO DE ORGANIZACAO--------
 
@@ -81,7 +80,7 @@ def adicionar_credencial():
 
 
     observacoes_credencial = input("Digite observações (opcional): ")
-    data_cadastro = date.today().strftime("%d/%m/%Y")  # Data do cadastro no formato dd/mm/aaaa 
+    data_cadastro =datetime.now() # Data do cadastro no formato dd/mm/aaaa 
     lista = [nome_credencial, usuario_email_credencial, senha_credencial, categoria_credencial, observacoes_credencial, data_cadastro]
     
     #ADICIONARF AO TXT
@@ -89,7 +88,7 @@ def adicionar_credencial():
     # abrir e adicionar credenciais
     with open("credenciais.txt", "a", encoding="utf-8") as file:
         for i in lista:
-            file.write(i)
+            file.write(str(i))
             file.write("|")
             
         file.write("\n")
@@ -152,6 +151,18 @@ def atualizar_credencial():
 
                     elif credencial == "senha":
                         nova_senha = input("Digite a nova senha: ")
+                        while True:
+                                forca_senha = analise_forca_senha(nova_senha)
+                               
+                                if forca_senha in [1,2,3]:
+                                    
+                                    if forca_senha >= categoria[linha[3]]:
+                                        print(f"Senha aceita,nivel:{forca_senha}")
+                                        break
+                                    
+                                    else:
+                                        print(f"A senha não atende a força mínima exigida para a categoria '{linha[3]}'.")
+                                        senha_credencial = input("Digite uma nova senha: ")
                         linha[2] = nova_senha
 
                     elif credencial == "categoria":
@@ -172,8 +183,8 @@ def atualizar_credencial():
                         novas_observacoes = input("Digite as novas observações: ")
                         linha[4] = novas_observacoes
 
-                    data_cadastro = date.today().strftime("%d/%m/%Y") 
-                    linha[5] = data_cadastro
+                    data_cadastro =datetime.now()
+                    linha[5] = str(data_cadastro)
                 
                     print("Credencial atualizada com sucesso!")
                   
