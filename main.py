@@ -1,6 +1,7 @@
 
 from datetime import datetime
 import os
+from time import sleep
 
 
 #---pedro|pedro@gmail.com|password|banco|observacao|11-07-2026:7:00pm REGRA DE NEGOCIO DE ORGANIZACAO--------
@@ -138,18 +139,23 @@ def atualizar_credencial():
 
                 if nome_credencial == linha[0]:
                     linha_antiga = linha.copy()  # Copia a linha antiga para comparação posterior
-                    credencial = input("Digite o campo que deseja atualizar (nome, usuario, senha, categoria, observacoes): ").lower()
+                    print("[1] Nome")
+                    print("[2] Usuário")
+                    print("[3] Senha")
+                    print("[4] Categoria")
+                    print("[5] Observações")
+                    credencial = input("Digite o campo que deseja atualizar: ").lower()
 
-                    if credencial == "nome":
+                    if credencial == "1":
                         nova_credencial = input("Digite o novo nome do serviço: ")
                         linha[0] = nova_credencial
                         
 
-                    elif credencial == "usuario":
+                    elif credencial == "2":
                         novo_usuario = input("Digite o novo usuário ou e-mail: ")
                         linha[1] = novo_usuario
 
-                    elif credencial == "senha":
+                    elif credencial == "3":
                         nova_senha = input("Digite a nova senha: ")
                         while True:
                                 forca_senha = analise_forca_senha(nova_senha)
@@ -165,7 +171,7 @@ def atualizar_credencial():
                                         senha_credencial = input("Digite uma nova senha: ")
                         linha[2] = nova_senha
 
-                    elif credencial == "categoria":
+                    elif credencial == "4":
                         nova_categoria = input("Digite a nova categoria: ").lower()
 
                         if nova_categoria not in categoria:
@@ -179,7 +185,7 @@ def atualizar_credencial():
                                 print("A credencial foi colocada em 'outros'.")
 
                         linha[3] = nova_categoria
-                    elif credencial == "observacoes":
+                    elif credencial == "5":
                         novas_observacoes = input("Digite as novas observações: ")
                         linha[4] = novas_observacoes
 
@@ -309,22 +315,30 @@ def excluir_credencial():
     print("-" * 30)
     print("Serviços cadastrados:")
     with open("credenciais.txt", "r", encoding="utf-8") as file:
-        for linha in file:
-            linha = linha.split("|")
-            print(f"- {linha[0]}")
-    nome_credencial = input("Digite o nome do serviço que deseja excluir: ")
-    with open("credenciais.txt", "r", encoding="utf-8") as file:
         linhas = file.readlines()
-
-    with open("credenciais.txt", "w", encoding="utf-8") as file:
+        nome = []
         for linha in linhas:
-            if linha.strip().split("|")[0] != nome_credencial:
-                file.write(linha)
-            else:
-                print(f"Credencial '{nome_credencial}' excluída com sucesso!")
+            linha = linha.split("|")
+            nome.append(linha[0].lower())
+            print(f"- {linha[0]}")
+    nome_credencial = input("Digite o nome do serviço que deseja excluir: ").lower()
+    if nome_credencial not in nome:
+         print("Serviço não encontrado!")
+         sleep(2)
 
-
-
+    else:
+         confirmacao = input("Você tem certeza que deseja excluir ? [s/n]").lower()
+         if confirmacao == "s":
+            with open("credenciais.txt", "w", encoding="utf-8") as file:
+                for linha in linhas:
+                    if linha.strip().split("|")[0].lower() != nome_credencial:
+                         file.write(linha)
+                    else:
+                        print(f"Credencial '{nome_credencial}' excluída com sucesso!")
+                        sleep(2)
+         else:
+            print("Exclusão cancelada!")
+            sleep(2)
 
 
 
