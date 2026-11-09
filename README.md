@@ -66,7 +66,8 @@ Menu:
 4 - Consultar categorias
 5 - Cadastrar categoria
 6 - Excluir credencial
-7 - Sair
+7 - Falar com Agente
+8 - Sair
 ------------------------------
 ```
 
