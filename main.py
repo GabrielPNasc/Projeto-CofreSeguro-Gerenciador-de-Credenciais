@@ -2,6 +2,8 @@
 from datetime import datetime
 import os
 from time import sleep
+from agente import falar_com_agente
+
 
 
 #---pedro|pedro@gmail.com|password|banco|observacao|11-07-2026:7:00pm REGRA DE NEGOCIO DE ORGANIZACAO--------
@@ -29,10 +31,11 @@ def menu():
         print("4 - Consultar categorias")
         print("5 - Cadastrar categoria")
         print("6 - Excluir credencial")
-        print("7 - Sair")
+        print("7 - Falar com o Tatu")
+        print("8 - Sair")
         print("-" * 30)
         opcao = input("Escolha uma opção: ")
-        if opcao in ["1", "2", "3", "4", "5", "6", "7"]:
+        if opcao in ["1", "2", "3", "4", "5", "6", "7","8"]:
             return opcao
         else:
             print("Opção inválida. Tente novamente.")
@@ -225,12 +228,12 @@ def consultar_categorias():
 def cadastrar_categoria(categoria_nova):
     
     #perguntar_forca_minima
-    forca_minima = input("Digite a força mínima para a nova categoria(senha Fraca, senha Média, senha Forte): ").lower()
-    if forca_minima == "senha fraca":
+    forca_minima = int(input("Digite a força mínima para a nova categoria(senha Fraca[1], senha Média[2], senha Forte[3]): "))
+    if forca_minima == 1:
         forca_minima = 1
-    if forca_minima == "senha média":
+    if forca_minima == 2:
         forca_minima = 2
-    if forca_minima == "senha forte":
+    if forca_minima == 3:
         forca_minima = 3
     categoria[categoria_nova] = forca_minima
 
@@ -344,7 +347,7 @@ def excluir_credencial():
 
 while True:
     opcao = menu()
-    if opcao == "7":
+    if opcao == "8":
         break
     elif opcao == "1":
         adicionar_credencial()
@@ -359,6 +362,16 @@ while True:
     elif opcao == "5":
         limpar_terminal()
         cadastrar_categoria(input("Digite o nome da nova categoria: ").lower())
+    elif opcao == "7":
+        arquivo, sistema = "credenciais.txt", "Sistema de Gerenciamento de Credenciais"
+        print(f"\nUsando {arquivo} no sistema {sistema}. Digite 'sair' para encerrar.")
+
+        while True:
+            pergunta = input("\nPergunta > ").strip()
+            if pergunta.lower() == "sair":
+                break
+            falar_com_agente(arquivo, pergunta, sistema)
+
     limpar_terminal()
     print("-"*30)
     lista = []
