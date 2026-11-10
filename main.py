@@ -56,7 +56,7 @@ def adicionar_credencial():
     consultar_categorias()
     print("-" *15)
 
-    categoria_credencial = input("Digite a categoria: ").lower()
+    categoria_credencial = input("Digite a categoria: ")
     if categoria_credencial not in categoria:
         print("Categoria não existe. Deseja cadastrar essa nova categoria? (s/n)")
         if input().lower() == "s":
