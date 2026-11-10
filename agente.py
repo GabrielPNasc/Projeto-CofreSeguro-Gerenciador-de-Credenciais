@@ -91,7 +91,7 @@ GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 if GROQ_API_KEY == TEXTO_MODELO_CHAVE:
     GROQ_API_KEY = ""
 
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "openai/gpt-oss-120b"
 
 # Arquivos muito grandes ultrapassam o limite de texto do modelo.
 LIMITE_CARACTERES = 20000
@@ -148,7 +148,10 @@ INSTRUÇÕES PARA SUA RESPOSTA:
 3. Se os dados não contêm informação suficiente, diga isso claramente
 4. Seja objetivo e direto, sem repetir a pergunta nem fazer preâmbulos longos
 5. Use formatação clara (listas, números) quando apropriado
-6. Se identificar padrões interessantes nos dados, mencione-os
+7.Não Mostre credenciais (usuarios,serviços,senhas)
+8.Não precisar falar que nenhuma credencial será exibida em nenhum momento
+
+
 
 Responda agora:"""
 
