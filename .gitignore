@@ -1,4 +1,6 @@
 .env
 log.txt
 usuarios.txt
+.DS_Store
 
+gabriel_credenciais.txt

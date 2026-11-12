@@ -33,14 +33,11 @@ def adicionar_credencial(usuario):
     consultar_categorias()
     print("-" *15)
 
-    categoria_credencial = input("Digite a categoria: ")
-    if categoria_credencial not in categoria:
-        print("Categoria não existe. Deseja cadastrar essa nova categoria? (s/n)")
-        if input().lower() == "s":
-            cadastrar_categoria(categoria_credencial)
-        else:
-            categoria_credencial = "outros"
-            print("A credencial foi colocada em 'outros'.")
+    categoria_credencial = int(input("Digite a categoria: "))
+    for i in range(len(categoria)):
+        if categoria_credencial == i + 1:
+            categoria_credencial = list(categoria.keys())[i]
+            break
 
     minimo = categoria[categoria_credencial]
     senha_credencial = input("Digite a senha: ")
@@ -152,7 +149,11 @@ def atualizar_credencial(usuario):
                                     else:
                                         print(f"A senha não atende a força mínima exigida para a categoria '{linha[3]}'.")
                                         senha_credencial = input("Digite uma nova senha: ")
-                        linha[2] = nova_senha
+                        if input("Tem certeza do que Deseja? (s/n): ").lower() == "s":
+                            linha[2] = nova_senha
+                        else:
+                            print("Atualização de senha cancelada.")
+                            return
 
                     elif credencial == "4":
                         nova_categoria = input("Digite a nova categoria: ").lower()
