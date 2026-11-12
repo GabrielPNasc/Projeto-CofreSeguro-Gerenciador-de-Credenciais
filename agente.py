@@ -107,21 +107,21 @@ def ler_dados(nome_arquivo):
         with open(nome_arquivo, "r", encoding="utf-8") as arquivo:
             conteudo = arquivo.read()
     except FileNotFoundError:
-        print(f"\n[T.a.t.u] Arquivo '{nome_arquivo}' não encontrado.")
+        print(f"\n[tatu] Arquivo '{nome_arquivo}' não encontrado.")
         return None
     except PermissionError:
-        print(f"\n[T.a.t.u] Sem permissão para ler '{nome_arquivo}'.")
+        print(f"\n[tatu] Sem permissão para ler '{nome_arquivo}'.")
         return None
     except UnicodeDecodeError:
-        print(f"\n[T.a.t.u] O arquivo '{nome_arquivo}' não está em UTF-8.")
+        print(f"\n[tatu] O arquivo '{nome_arquivo}' não está em UTF-8.")
         return None
 
     if not conteudo.strip():
-        print("\n[T.a.t.u] O arquivo está vazio. Crie alguns registros antes de perguntar.")
+        print("\n[tatu] O arquivo está vazio. Crie alguns registros antes de perguntar.")
         return None
 
     if len(conteudo) > LIMITE_CARACTERES:
-        print(f"\n[T.a.t.u] O arquivo tem {len(conteudo)} caracteres, acima do limite de "
+        print(f"\n[tatu] O arquivo tem {len(conteudo)} caracteres, acima do limite de "
               f"{LIMITE_CARACTERES}.")
         print("         Envie apenas os registros necessários para a pergunta.")
         return None
@@ -159,12 +159,12 @@ Responda agora:"""
 def criar_cliente():
     """Cria o cliente da Groq. Devolve o cliente ou None se houver problema."""
     if Groq is None:
-        print("\n[T.a.t.u] A biblioteca groq não está instalada.")
+        print("\n[tatu] A biblioteca groq não está instalada.")
         print("         Instale com: pip install groq")
         return None
 
     if not GROQ_API_KEY:
-        print("\n[T.a.t.u] A chave da API não foi configurada.")
+        print("\n[tatu] A chave da API não foi configurada.")
         print("         Crie o arquivo .env (copie o .env.example) e cole sua chave nele.")
         print("         Veja as instruções no início do arquivo agente.py.")
         return None
@@ -172,7 +172,7 @@ def criar_cliente():
     try:
         return Groq(api_key=GROQ_API_KEY)
     except Exception as erro:
-        print(f"\n[T.a.t.u] Erro ao inicializar o cliente: {erro}")
+        print(f"\n[tatu] Erro ao inicializar o cliente: {erro}")
         return None
 
 
@@ -181,16 +181,16 @@ def explicar_erro(erro):
     texto = str(erro).lower()
 
     if "api_key" in texto or "authentication" in texto or "401" in texto:
-        print("\n[T.a.t.u] Erro de autenticação: a chave é inválida ou expirou.")
+        print("\n[tatu] Erro de autenticação: a chave é inválida ou expirou.")
         print("         Gere uma nova chave em https://console.groq.com/keys")
     elif "rate_limit" in texto or "429" in texto:
-        print("\n[T.a.t.u] Limite de requisições excedido. Aguarde alguns minutos.")
+        print("\n[tatu] Limite de requisições excedido. Aguarde alguns minutos.")
     elif "quota" in texto or "exceeded" in texto:
-        print("\n[T.a.t.u] Limite de uso da conta gratuita atingido.")
+        print("\n[tatu] Limite de uso da conta gratuita atingido.")
     elif "connection" in texto or "timeout" in texto:
-        print("\n[T.a.t.u] Sem conexão com o serviço. Verifique a internet.")
+        print("\n[tatu] Sem conexão com o serviço. Verifique a internet.")
     else:
-        print(f"\n[T.a.t.u] Erro ao consultar a API: {erro}")
+        print(f"\n[tatu] Erro ao consultar a API: {erro}")
 
 
 # ============================================================================
@@ -235,15 +235,15 @@ def falar_com_agente_texto(conteudo, pergunta, nome_sistema="Sistema", streaming
         a resposta do modelo (texto), ou None se algo der errado
     """
     if not pergunta or not pergunta.strip():
-        print("\n[T.a.t.u] Nenhuma pergunta foi digitada.")
+        print("\n[tatu] Nenhuma pergunta foi digitada.")
         return None
 
     if not conteudo or not conteudo.strip():
-        print("\n[T.a.t.u] Não há dados para enviar. Cadastre alguns registros antes.")
+        print("\n[tatu] Não há dados para enviar. Cadastre alguns registros antes.")
         return None
 
     if len(conteudo) > LIMITE_CARACTERES:
-        print(f"\n[T.a.t.u] Os dados têm {len(conteudo)} caracteres, acima do limite de "
+        print(f"\n[tatu] Os dados têm {len(conteudo)} caracteres, acima do limite de "
               f"{LIMITE_CARACTERES}.")
         print("         Envie apenas os registros necessários para a pergunta.")
         return None

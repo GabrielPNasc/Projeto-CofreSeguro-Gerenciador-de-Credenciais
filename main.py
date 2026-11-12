@@ -33,7 +33,7 @@ def menu():
         print("4 - Consultar categorias")
         print("5 - Cadastrar categoria")
         print("6 - Excluir credencial")
-        print("7 - Falar com o Tatu")
+        print("7 - Falar com tatuAI")
         print("8 - Sair")
         print("-" * 30)
         opcao = int(input("Escolha uma opção: "))
