@@ -78,7 +78,29 @@ def adicionar_credencial(usuario):
         file.write("\n")
     return True
 
-
+# Opção de revelar senha para o usuário
+def revelar_senha(usuario, senha):
+    while True:
+        resposta = input("Deseja revelar a senha completa? (s/n): ").lower()
+        # Usuario deverá confirmar senha inicial (do cadastro) para revelar a senha completa
+        senha_confirmacao = input("Digite a senha do seu cadastro inicial para confirmar: ")
+        with open(ARQ_USUARIOS, "r", encoding="utf-8") as file:
+            for linha in file:
+                linha = linha.strip().split("|")
+                if usuario == linha[0]:
+                    if senha_confirmacao == linha[1]:
+                        if resposta == "s":
+                            print(f"A senha completa é: {senha}")
+                            return True
+                        elif resposta == "n":
+                            print("Senha não revelada.")
+                            return False
+                        else:
+                            print("Opção inválida. Digite 's' para sim ou 'n' para não.")
+                    else:
+                        print("Senha de confirmação incorreta. Tente novamente.")
+                        return False
+                     
 
     
 def ler_credenciais(usuario):
@@ -100,11 +122,13 @@ def ler_credenciais(usuario):
                     print(f"Observações: {linha[4]}")
                     print(f"Data do último cadastro ou alteração: {linha[5]}")
                     print("-" * 30)
+                    revelar_senha(usuario, linha[2])  
         input_saida = input("Pressione Enter para continuar...")  
     except FileNotFoundError:
             print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
             input("Pressione Enter para continuar...")
             return False
+    
 
 def register_log(acao):
     with open("log.txt", "a", encoding="utf-8") as file:
@@ -221,7 +245,7 @@ def consultar_categorias():
     for i in range(len(categoria)):
         print(f"[{i + 1}]-Categoria: {list(categoria.keys())[i]}, Força mínima: {categoria[list(categoria.keys())[i]]}")
 
-    input_saida = input("Pressione Enter para continuar...")  
+    input_saida = input("Após pressionar Enter, digite o número da categoria.")  
 
 
 
