@@ -6,6 +6,7 @@ from crud import *
 from login import *
 
 
+
 #---pedro|pedro@gmail.com|password|banco|observacao|11-07-2026:7:00pm REGRA DE NEGOCIO DE ORGANIZACAO--------
 
 def menu_login():
@@ -51,7 +52,13 @@ while True:
     menu_opcao = menu_login()
     if menu_opcao == 1:
         usuario = input("Digite o nome de usuário: ")
-        senha = input("Digite a senha: ")
+        answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
+        if answer == 1:
+            senha = create_password()
+            print(f"Sua senha gerada é: {senha}")
+            input("Pressione Enter para continuar...")
+        else:
+            senha = input("Digite a senha: ")
         cadastrar_conta(usuario, senha)
     elif menu_opcao == 2:
         usuario = input("Digite o nome de usuário: ")
@@ -63,26 +70,26 @@ while True:
                 if opcao == 8:
                     break
                 elif opcao == 1:
-                    adicionar_credencial(usuario)
-                    register_log("Credencial adicionada")
+                    if adicionar_credencial(usuario) == True:
+                        register_log("Credencial adicionada")
                 elif opcao == 2:
                     ler_credenciais(usuario)
                 elif opcao == 6:
-                    excluir_credencial(usuario)
-                    register_log("Credencial excluída")
+                    if excluir_credencial(usuario) == True:
+                        register_log("Credencial excluída")
                 elif opcao == 3:
-                    atualizar_credencial(usuario)
-                    register_log("Credencial atualizada")
+                    if atualizar_credencial(usuario) == True:
+                        register_log("Credencial atualizada")
                 elif opcao == 4:  
                     consultar_categorias()
                 elif opcao == 5:
                     limpar_terminal()
-                    cadastrar_categoria(input("Digite o nome da nova categoria: ").lower())
-                    register_log("Categoria cadastrada")
+                    if cadastrar_categoria(input("Digite o nome da nova categoria: ").lower()) == True:
+                        register_log("Categoria cadastrada")
                 elif opcao == 7:
-                    falar_com_agente(nome_arquivo=arquivo_user(usuario),pergunta=input("Digite sua pergunta para o agente: "))
+                    if falar_com_agente(nome_arquivo=arquivo_user(usuario),pergunta=input("Digite sua pergunta para o agente: ")) == True:
+                        register_log("Usuário falou com o agente")
                     input("Pressione Enter para continuar...")
-                    register_log("Usuário falou com o agente")
 
         
     elif menu_opcao == 3:

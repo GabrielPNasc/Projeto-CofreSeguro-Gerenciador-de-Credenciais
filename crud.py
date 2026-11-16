@@ -3,7 +3,7 @@ import os
 from time import sleep
 from agente import falar_com_agente
 from login import *
-from login import arquivo_user
+
 #-------------CRUD---------#
 
 
@@ -40,7 +40,13 @@ def adicionar_credencial(usuario):
             break
 
     minimo = categoria[categoria_credencial]
-    senha_credencial = input("Digite a senha: ")
+    answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
+    if answer == 1:
+        senha_credencial = create_password()
+        print(f"Sua senha gerada é: {senha_credencial}")
+        input("Pressione Enter para continuar...")
+    else:
+        senha_credencial = input("Digite a senha: ")
 
 
     while True:
@@ -70,30 +76,35 @@ def adicionar_credencial(usuario):
             file.write("|")
             
         file.write("\n")
+    return True
 
 
 
     
 def ler_credenciais(usuario):
     limpar_terminal()
-    with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
-            for linha in file:
-                linha = linha.strip().split("|")
-                print("-" * 30)
-                if len(linha) == 0:
-                    print("Nenhuma credencial cadastrada.")
-                    return
-                print("Credenciais:")
-                print("-" * 30)
-                print(f"Nome do serviço: {linha[0]}")
-                print(f"Usuário ou e-mail: {linha[1]}")
-                print(f"Senha: {linha[2][:2]}{'*' * (len(linha[2]) - 2)}")  # Mostra apenas os dois primeiros caracteres da senha
-                print(f"Categoria: {linha[3]}")
-                print(f"Observações: {linha[4]}")
-                print(f"Data do último cadastro ou alteração: {linha[5]}")
-                print("-" * 30)
-    input_saida = input("Pressione Enter para continuar...")  
-
+    try:
+        with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
+                for linha in file:
+                    linha = linha.strip().split("|")
+                    print("-" * 30)
+                    if len(linha) == 0:
+                        print("Nenhuma credencial cadastrada.")
+                        return
+                    print("Credenciais:")
+                    print("-" * 30)
+                    print(f"Nome do serviço: {linha[0]}")
+                    print(f"Usuário ou e-mail: {linha[1]}")
+                    print(f"Senha: {linha[2][:2]}{'*' * (len(linha[2]) - 2)}")  # Mostra apenas os dois primeiros caracteres da senha
+                    print(f"Categoria: {linha[3]}")
+                    print(f"Observações: {linha[4]}")
+                    print(f"Data do último cadastro ou alteração: {linha[5]}")
+                    print("-" * 30)
+        input_saida = input("Pressione Enter para continuar...")  
+    except FileNotFoundError:
+            print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
+            input("Pressione Enter para continuar...")
+            return False
 
 def register_log(acao):
     with open("log.txt", "a", encoding="utf-8") as file:
@@ -102,93 +113,105 @@ def register_log(acao):
 
                 
 def atualizar_credencial(usuario):
-    limpar_terminal()
-    print("Atualizar credencial")
-    print("-" * 30)
-    print("Serviços cadastrados:")
-    with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
-        for linha in file:
-            linha = linha.split("|")
-            print(f"- {linha[0]}")
-    nome_credencial = input("Digite o nome do serviço que deseja atualizar: ")
-    with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
-            
+    try:
+        limpar_terminal()
+        print("Atualizar credencial")
+        print("-" * 30)
+        print("Serviços cadastrados:")
+        with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
             for linha in file:
                 linha = linha.split("|")
+                print(f"- {linha[0]}")
+        nome_credencial = input("Digite o nome do serviço que deseja atualizar: ")
+        with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
+                
+                for linha in file:
+                    linha = linha.split("|")
 
 
-                if nome_credencial == linha[0]:
-                    linha_antiga = linha.copy()  # Copia a linha antiga para comparação posterior
-                    print("[1] Nome")
-                    print("[2] Usuário")
-                    print("[3] Senha")
-                    print("[4] Categoria")
-                    print("[5] Observações")
-                    credencial = input("Digite o campo que deseja atualizar: ").lower()
+                    if nome_credencial == linha[0]:
+                        linha_antiga = linha.copy()  # Copia a linha antiga para comparação posterior
+                        print("[1] Nome")
+                        print("[2] Usuário")
+                        print("[3] Senha")
+                        print("[4] Categoria")
+                        print("[5] Observações")
+                        credencial = input("Digite o campo que deseja atualizar: ").lower()
 
-                    if credencial == "1":
-                        nova_credencial = input("Digite o novo nome do serviço: ")
-                        linha[0] = nova_credencial
+                        if credencial == "1":
+                            nova_credencial = input("Digite o novo nome do serviço: ")
+                            linha[0] = nova_credencial
+                            
+
+                        elif credencial == "2":
+                            novo_usuario = input("Digite o novo usuário ou e-mail: ")
+                            linha[1] = novo_usuario
+
+                        elif credencial == "3":
+                            answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
+                            if answer == 1:
+                                nova_senha = create_password()
+                                print(f"Sua senha gerada é: {nova_senha}")
+                                input("Pressione Enter para continuar...")
+                            else:
+                                nova_senha = input("Digite a senha: ")
+                            while True:
+                                    forca_senha = analise_forca_senha(nova_senha)
+                                
+                                    if forca_senha in [1,2,3]:
+                                        
+                                        if forca_senha >= categoria[linha[3]]:
+                                            print(f"Senha aceita,nivel:{forca_senha}")
+                                            break
+                                        
+                                        else:
+                                            print(f"A senha não atende a força mínima exigida para a categoria '{linha[3]}'.")
+                                            senha_credencial = input("Digite uma nova senha: ")
+                            if input("Tem certeza do que Deseja? (s/n): ").lower() == "s":
+                                linha[2] = nova_senha
+                            else:
+                                print("Atualização de senha cancelada.")
+                                return  False
                         
 
-                    elif credencial == "2":
-                        novo_usuario = input("Digite o novo usuário ou e-mail: ")
-                        linha[1] = novo_usuario
+                        elif credencial == "4":
+                            nova_categoria = input("Digite a nova categoria: ").lower()
 
-                    elif credencial == "3":
-                        nova_senha = input("Digite a nova senha: ")
-                        while True:
-                                forca_senha = analise_forca_senha(nova_senha)
-                               
-                                if forca_senha in [1,2,3]:
-                                    
-                                    if forca_senha >= categoria[linha[3]]:
-                                        print(f"Senha aceita,nivel:{forca_senha}")
-                                        break
-                                    
-                                    else:
-                                        print(f"A senha não atende a força mínima exigida para a categoria '{linha[3]}'.")
-                                        senha_credencial = input("Digite uma nova senha: ")
-                        if input("Tem certeza do que Deseja? (s/n): ").lower() == "s":
-                            linha[2] = nova_senha
-                        else:
-                            print("Atualização de senha cancelada.")
-                            return
+                            if nova_categoria not in categoria:
+                                print("Categoria não existe. Deseja cadastrar essa nova categoria? (s/n)")
 
-                    elif credencial == "4":
-                        nova_categoria = input("Digite a nova categoria: ").lower()
+                                if input().lower() == "s":
+                                    cadastrar_categoria(nova_categoria)
 
-                        if nova_categoria not in categoria:
-                            print("Categoria não existe. Deseja cadastrar essa nova categoria? (s/n)")
+                                else:
+                                    nova_categoria = "outros"
+                                    print("A credencial foi colocada em 'outros'.")
 
-                            if input().lower() == "s":
-                                cadastrar_categoria(nova_categoria)
+                            linha[3] = nova_categoria
+                        elif credencial == "5":
+                            novas_observacoes = input("Digite as novas observações: ")
+                            linha[4] = novas_observacoes
 
-                            else:
-                                nova_categoria = "outros"
-                                print("A credencial foi colocada em 'outros'.")
+                        data_cadastro =datetime.now()
+                        linha[5] = str(data_cadastro)
+                    
+                        print("Credencial atualizada com sucesso!")
+                    
+                        with open(arquivo_user(usuario), "r", encoding="utf-8") as file:#ler todas as linhas do arquivo e guarda numna lista
+                            linhas = file.readlines()
 
-                        linha[3] = nova_categoria
-                    elif credencial == "5":
-                        novas_observacoes = input("Digite as novas observações: ")
-                        linha[4] = novas_observacoes
-
-                    data_cadastro =datetime.now()
-                    linha[5] = str(data_cadastro)
-                
-                    print("Credencial atualizada com sucesso!")
-                  
-                    with open(arquivo_user(usuario), "r", encoding="utf-8") as file:#ler todas as linhas do arquivo e guarda numna lista
-                        linhas = file.readlines()
-
-                    with open(arquivo_user(usuario), "w", encoding="utf-8") as file:
-                        for l in linhas:# vai passar por todas as linhas do arquivo e vai escrever no arquivo novamente, mas se a linha for a que foi atualizada, ele escreve a nova linha
-                            
-                            if l.strip() != "|".join(linha_antiga).strip():#se NAO FOR A LINHA antiga,ele escreve a linha do arquivo
-                                file.write(l)
-                            else:#SE FOR A LINHA DO ARQUIVO, ELE ESCREVE A LINHA ATUALIZADA
-                                file.write("|".join(linha) )
-                            
+                        with open(arquivo_user(usuario), "w", encoding="utf-8") as file:
+                            for l in linhas:# vai passar por todas as linhas do arquivo e vai escrever no arquivo novamente, mas se a linha for a que foi atualizada, ele escreve a nova linha
+                                
+                                if l.strip() != "|".join(linha_antiga).strip():#se NAO FOR A LINHA antiga,ele escreve a linha do arquivo
+                                    file.write(l)
+                                else:#SE FOR A LINHA DO ARQUIVO, ELE ESCREVE A LINHA ATUALIZADA
+                                    file.write("|".join(linha) )
+        return True
+    except FileNotFoundError:
+        print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
+        input("Pressione Enter para continuar...")
+        return False
                     
 
 
@@ -214,52 +237,14 @@ def cadastrar_categoria(categoria_nova):
         forca_minima = 3
     categoria[categoria_nova] = forca_minima
 
+    return True
+
 
 #---------------------------#
 
 
 
-def analise_forca_senha(senha):
-    status_maisculo = False
-    status_minus = False
-    tamanho = False
-    num = False
-    caracter = False
 
-    lista = ["!", '@', "#", '$', '%', "&", "*", "-", "_", "?", "/","+","="]
-
-    if len(senha) >=6:
-        tamanho = True
-
-    for i in range(len(senha)):
-        if senha[i].isdigit() == False:
-            if senha[i]==senha[i].upper():
-                status_maisculo = True
-
-    for i in range(len(senha)):
-        if senha[i].isdigit() == False:
-            if senha[i]==senha[i].lower():
-                status_minus = True
-
-
-    for i in lista:
-        if i in senha:
-            caracter = True
-        
-    for i in senha:
-         if i.isdigit() == True:
-              num = True
-
-    if status_maisculo != False and status_minus != False and tamanho != False and num != False and caracter != False:
-            return 3
-    
-    if tamanho!= False and status_minus != False  and num != False and status_maisculo != False:
-            return 2
-    
-    if tamanho!= False :
-        if num != False or status_minus != False:
-            return 1
-        
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Detecção de riscos
@@ -284,33 +269,40 @@ def risk_detection(senhas):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def excluir_credencial(usuario):
-    print("-" * 30)
-    print("Serviços cadastrados:")
-    with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
-        linhas = file.readlines()
-        nome = []
-        for linha in linhas:
-            linha = linha.split("|")
-            nome.append(linha[0].lower())
-            print(f"- {linha[0]}")
-    nome_credencial = input("Digite o nome do serviço que deseja excluir: ").lower()
-    if nome_credencial not in nome:
-         print("Serviço não encontrado!")
-         sleep(2)
-
-    else:
-         confirmacao = input("Você tem certeza que deseja excluir ? [s/n]").lower()
-         if confirmacao == "s":
-            with open(arquivo_user(usuario), "w", encoding="utf-8") as file:
-                for linha in linhas:
-                    if linha.strip().split("|")[0].lower() != nome_credencial:
-                         file.write(linha)
-                    else:
-                        print(f"Credencial '{nome_credencial}' excluída com sucesso!")
-                        sleep(2)
-         else:
-            print("Exclusão cancelada!")
+    try:
+        print("-" * 30)
+        print("Serviços cadastrados:")
+        with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
+            linhas = file.readlines()
+            nome = []
+            for linha in linhas:
+                linha = linha.split("|")
+                nome.append(linha[0].lower())
+                print(f"- {linha[0]}")
+        nome_credencial = input("Digite o nome do serviço que deseja excluir: ").lower()
+        if nome_credencial not in nome:
+            print("Serviço não encontrado!")
             sleep(2)
+
+        else:
+            confirmacao = input("Você tem certeza que deseja excluir ? [s/n]").lower()
+            if confirmacao == "s":
+                with open(arquivo_user(usuario), "w", encoding="utf-8") as file:
+                    for linha in linhas:
+                        if linha.strip().split("|")[0].lower() != nome_credencial:
+                            file.write(linha)
+                        else:
+                            print(f"Credencial '{nome_credencial}' excluída com sucesso!")
+                            sleep(2)
+                            return True
+            else:
+                print("Exclusão cancelada!")
+                sleep(2)
+                return False
+    except FileNotFoundError:
+                print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
+                input("Pressione Enter para continuar...")
+                return False
 
 
 
@@ -324,6 +316,7 @@ def agente(usuario):
         if pergunta.lower() == "sair":
             break
     falar_com_agente(arquivo, pergunta, sistema)
+    return True
 
 
 

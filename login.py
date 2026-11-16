@@ -1,7 +1,7 @@
 
 from datetime import datetime
-from crud import *
-
+from seguranca import analise_forca_senha
+import random
 
 #Contas#
 #---------------------------------------------------------------------------------
@@ -25,6 +25,7 @@ def entrar_conta(usuario,senha):
             return False 
     except FileNotFoundError:
         print("Arquivo de usuários não encontrado. Cadastre uma conta primeiro.")
+        input("Pressione Enter para continuar...")
         return False
     
 def arquivo_user(usuario):
@@ -36,3 +37,19 @@ def arquivo_user(usuario):
                     with open(".gitignore", "a", encoding="utf-8") as file:
                         file.write(f"{usuario}_credenciais.txt\n")
     return f"{usuario}_credenciais.txt"
+
+
+def create_password():
+    caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*-_?/+="
+    tamanho = 10
+    senha = ""
+
+    print("Gerando senha forte automaticamente...")
+    if analise_forca_senha(senha) ==0:
+        while analise_forca_senha(senha) < 3 :
+            senha = ""
+            for i in range(tamanho):
+                senha += caracteres[random.randint(0, len(caracteres) - 1)]
+            
+        return senha
+    
