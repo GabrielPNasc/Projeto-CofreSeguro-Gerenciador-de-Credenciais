@@ -3,14 +3,20 @@ import re
 import sys
 import asyncio
 import builtins
+import threading
 import traceback
 from contextlib import redirect_stdout
 
 import flet as ft
 
+# Compatibilidade: versões novas do Flet renomearam ElevatedButton para Button
+if not hasattr(ft, "ElevatedButton"):
+    ft.ElevatedButton = ft.Button
+
 from agente import falar_com_agente
 from crud import *
 from login import *
+from seguranca import *
 
 # ---------- Tema do tatu: preto, branco e cinza ----------
 PRETO = "#0A0A0A"
@@ -34,6 +40,21 @@ VOLTA = 6.283185307179586   # 360 graus em radianos
 
 def diag(*msg):
     print("[app]", *msg, file=sys.stderr, flush=True)
+
+
+# ---------- input() separado por thread ----------
+# Cada thread pode ter o seu próprio input(), assim uma ação antiga
+# não desfaz a configuração de uma ação nova.
+_local = threading.local()
+_input_original = builtins.input
+
+
+def _input_roteado(prompt=""):
+    f = getattr(_local, "input", None)
+    return f(prompt) if f else _input_original(prompt)
+
+
+builtins.input = _input_roteado
 
 
 # ---------- Componentes ----------
@@ -60,7 +81,7 @@ def estilo(primario=True):
 
 
 def botao(texto, ao_clicar, primario=True):
-    return ft.ElevatedButton(texto, on_click=ao_clicar, height=46, style=estilo(primario))
+    return ft.Button(texto, on_click=ao_clicar, height=46, style=estilo(primario))
 
 
 def card(*controles):
@@ -133,6 +154,15 @@ def tipo_campo(prompt):
             t,
         )
     )
+    # Pergunta por nome/serviço (sem pedir número de verdade) aceita texto livre
+    if re.search(r"nome|servi[çc]o", t) and not re.search(
+        r"n[úu]mero|n[º°]|[íi]ndice|\bid\b", t
+    ):
+        numerico = False
+    # Pergunta de senha (que não seja sim/não) é sempre texto mascarado, mesmo que
+    # a mensagem cite "número" nos requisitos ("pelo menos um número...")
+    if "senha" in t and not re.search(r"deseja|quer|\(s/n\)|\[s/n\]|s/n", t):
+        numerico = False
     senha = (not numerico) and "senha" in t
     return numerico, senha
 
@@ -344,10 +374,10 @@ def main(page: ft.Page):
                             color=CINZA),
                     ft.Row(
                         [
-                            ft.ElevatedButton("Cancelar", on_click=nao, height=46,
-                                              style=estilo(False), expand=True),
-                            ft.ElevatedButton("Sim, excluir", on_click=sim, height=46,
-                                              style=estilo(True), expand=True),
+                            ft.Button("Cancelar", on_click=nao, height=46,
+                                      style=estilo(False), expand=True),
+                            ft.Button("Sim, excluir", on_click=sim, height=46,
+                                      style=estilo(True), expand=True),
                         ],
                         spacing=8,
                     ),
@@ -395,6 +425,7 @@ def main(page: ft.Page):
         def trabalho():
             """Roda a SUA função em segundo plano. Todo acesso à tela passa pelo laço do Flet."""
             buffer = []
+            auto = {"ultimo": None}
 
             def despejar():
                 texto = "".join(buffer).strip()
@@ -406,6 +437,24 @@ def main(page: ft.Page):
                 despejar()
                 if fluxo.cancelado:
                     raise Cancelado()
+                p = str(prompt).lower()
+
+                # Na exclusão, o botão "Sim, excluir" já confirmou: a confirmação
+                # digitada da função é respondida sozinha (só quando há botão).
+                if confirmar and re.search(r"certeza|confirma|s/n|sim/n[ãa]o|deseja mesmo", p):
+                    return "sim" if "sim" in p else "s"
+
+                # "Pressione Enter para continuar" não precisa de campo na janela.
+                # Se o mesmo pedido de Enter se repetir em seguida (a função está em
+                # um laço, por exemplo senha fraca), mostra o campo de verdade em vez
+                # de ficar carregando para sempre.
+                if re.search(r"\benter\b", p):
+                    if auto["ultimo"] != p:
+                        auto["ultimo"] = p
+                        return ""
+                    auto["ultimo"] = None
+                else:
+                    auto["ultimo"] = None
                 status, valor = asyncio.run_coroutine_threadsafe(
                     perguntar(str(prompt)), loop
                 ).result()
@@ -415,8 +464,7 @@ def main(page: ft.Page):
                     raise Recusado()
                 return valor
 
-            original = builtins.input
-            builtins.input = meu_input
+            _local.input = meu_input
             ret, erro, recusou = None, None, False
             try:
                 with redirect_stdout(Saida(buffer.append)):
@@ -425,11 +473,14 @@ def main(page: ft.Page):
                 return
             except Recusado:
                 recusou = True
+            except SystemExit as ex:
+                erro = RuntimeError(f"a função tentou encerrar o programa (exit: {ex.code})")
+                traceback.print_exc()
             except Exception as ex:
                 erro = ex
                 traceback.print_exc()
             finally:
-                builtins.input = original
+                _local.input = None
 
             despejar()
             if recusou:
@@ -446,21 +497,20 @@ def main(page: ft.Page):
     def rodar_simples(func, *args):
         """Para funções sem input(): devolve (retorno, texto que elas imprimiram)."""
         buffer = io.StringIO()
-        original = builtins.input
 
         def sem_input(prompt=""):
             raise RuntimeError("essa função pede input() e não funciona direto aqui")
 
-        builtins.input = sem_input
+        _local.input = sem_input
         retorno = None
         try:
             with redirect_stdout(buffer):
                 retorno = func(*args)
         except Exception as ex:
             traceback.print_exc()
-            mensagem(f"Erro: {ex}", erro=True)
+            buffer.write(f"Erro: {ex}")
         finally:
-            builtins.input = original
+            _local.input = None
         return retorno, buffer.getvalue().strip()
 
     # =============== ANIMAÇÃO DE ABERTURA ===============
