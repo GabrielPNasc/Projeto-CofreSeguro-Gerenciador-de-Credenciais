@@ -1,3 +1,6 @@
+import os
+
+
 def analise_forca_senha(senha):
     status_maisculo = False
     status_minus = False
@@ -40,4 +43,32 @@ def analise_forca_senha(senha):
             return 1
     else:
         return 0
+
+# ---------- criptografia ----------
+CHAVE = os.getenv("CHAVE_MESTRA")
+M = 0xFFFFFFFFFFFFFFFF
+
+def _fluxo(tamanho_senha):
+    estado = 14695981039346656037
+    for b in CHAVE.encode():
+        estado ^= b
+        estado = (estado * 1099511628211) & M
+    saida = []
+    for _ in range(tamanho_senha):
+        estado ^= (estado << 13) & M
+        estado ^= estado >> 7
+        estado ^= (estado << 17) & M
+        saida.append(estado & 0xFF)
+    return saida
+
+def criptografar(senha):
+    dados = senha.encode()
+    fluxo = _fluxo(len(dados))
+    return bytes(a ^ b for a, b in zip(dados, fluxo)).hex()
+
+def descriptografar(senha_criptografada):
+    cifrado = bytes.fromhex(senha_criptografada)
+    fluxo = _fluxo(len(cifrado))
+    return bytes(a ^ b for a, b in zip(cifrado, fluxo)).decode()
+
         

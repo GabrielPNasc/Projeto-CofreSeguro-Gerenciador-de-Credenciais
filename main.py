@@ -10,6 +10,7 @@ from login import *
 #---pedro|pedro@gmail.com|password|banco|observacao|11-07-2026:7:00pm REGRA DE NEGOCIO DE ORGANIZACAO--------
 
 def menu_login():
+        
         limpar_terminal()
         print("-" * 30)
         print("Menu de Login:")
@@ -50,19 +51,25 @@ def menu():
 #-----------------------------------------------------------------------
 while True:
     menu_opcao = menu_login()
+
     if menu_opcao == 1:
         usuario = input("Digite o nome de usuário: ")
         answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
+
         if answer == 1:
             senha = create_password()
             print(f"Sua senha gerada é: {senha}")
             input("Pressione Enter para continuar...")
+
         else:
             senha = input("Digite a senha: ")
+        
         cadastrar_conta(usuario, senha)
+
     elif menu_opcao == 2:
         usuario = input("Digite o nome de usuário: ")
         senha = input("Digite a senha: ")
+
         if entrar_conta(usuario, senha):
 
             while True:
@@ -87,6 +94,7 @@ while True:
                     if cadastrar_categoria(input("Digite o nome da nova categoria: ").lower()) == True:
                         register_log("Categoria cadastrada")
                 elif opcao == 7:
+
                     if falar_com_agente(nome_arquivo=arquivo_user(usuario),pergunta=input("Digite sua pergunta para o agente: ")) == True:
                         register_log("Usuário falou com o agente")
                     input("Pressione Enter para continuar...")

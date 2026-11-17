@@ -3,6 +3,7 @@ import os
 from time import sleep
 from agente import falar_com_agente
 from login import *
+from seguranca import *
 
 #-------------CRUD---------#
 
@@ -22,8 +23,10 @@ def limpar_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
+# ----------------------------------  
 # Adicionar
 def adicionar_credencial(usuario):
+
     limpar_terminal()
     print("Adicionar credencial")
     nome_credencial = input("Digite o nome do serviço: ")
@@ -62,9 +65,11 @@ def adicionar_credencial(usuario):
                 print(f"A senha não atende a força mínima exigida para a categoria '{categoria_credencial}'.")
                 senha_credencial = input("Digite uma nova senha: ")
 
+    senha_credencial = criptografar(senha_credencial)
 
     observacoes_credencial = input("Digite observações (opcional): ")
     data_cadastro =datetime.now() # Data do cadastro no formato dd/mm/aaaa 
+
     lista = [nome_credencial, usuario_email_credencial, senha_credencial, categoria_credencial, observacoes_credencial, data_cadastro]
     
     #ADICIONARF AO TXT
@@ -88,7 +93,7 @@ def revelar_senha(usuario, senha):
             for linha in file:
                 linha = linha.strip().split("|")
                 if usuario == linha[0]:
-                    if senha_confirmacao == linha[1]:
+                    if senha_confirmacao == descriptografar(linha[1]):
                         if resposta == "s":
                             print(f"A senha completa é: {senha}")
                             return True
@@ -117,12 +122,12 @@ def ler_credenciais(usuario):
                     print("-" * 30)
                     print(f"Nome do serviço: {linha[0]}")
                     print(f"Usuário ou e-mail: {linha[1]}")
-                    print(f"Senha: {linha[2][:2]}{'*' * (len(linha[2]) - 2)}")  # Mostra apenas os dois primeiros caracteres da senha
+                    print(f"Senha: {descriptografar(linha[2])[:2]}{'*' * (len(linha[2]) - 2)}")  # Mostra apenas os dois primeiros caracteres da senha
                     print(f"Categoria: {linha[3]}")
                     print(f"Observações: {linha[4]}")
                     print(f"Data do último cadastro ou alteração: {linha[5]}")
                     print("-" * 30)
-                    revelar_senha(usuario, linha[2])  
+                    revelar_senha(usuario, descriptografar(linha[2]))  
         input_saida = input("Pressione Enter para continuar...")  
     except FileNotFoundError:
             print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
@@ -190,9 +195,9 @@ def atualizar_credencial(usuario):
                                         
                                         else:
                                             print(f"A senha não atende a força mínima exigida para a categoria '{linha[3]}'.")
-                                            senha_credencial = input("Digite uma nova senha: ")
+                                            nova_senha = input("Digite uma nova senha: ")
                             if input("Tem certeza do que Deseja? (s/n): ").lower() == "s":
-                                linha[2] = nova_senha
+                                linha[2] = criptografar(nova_senha)
                             else:
                                 print("Atualização de senha cancelada.")
                                 return  False
@@ -278,6 +283,7 @@ def risk_detection(senhas):
         lista = []
         for posicao, senha in enumerate(senhas):
                 if senha in senhas:
+                        senha = descriptografar(senha)
                         if senha not in lista:
                                lista.append(posicao)
                                lista.append(senha)
