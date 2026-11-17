@@ -196,6 +196,7 @@ def atualizar_credencial(usuario):
                                         else:
                                             print(f"A senha não atende a força mínima exigida para a categoria '{linha[3]}'.")
                                             nova_senha = input("Digite uma nova senha: ")
+                                            
                             if input("Tem certeza do que Deseja? (s/n): ").lower() == "s":
                                 linha[2] = criptografar(nova_senha)
                             else:
