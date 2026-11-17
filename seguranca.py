@@ -71,4 +71,4 @@ def descriptografar(senha_criptografada):
     fluxo = _fluxo(len(cifrado))
     return bytes(a ^ b for a, b in zip(cifrado, fluxo)).decode()
 
-        
+        ##

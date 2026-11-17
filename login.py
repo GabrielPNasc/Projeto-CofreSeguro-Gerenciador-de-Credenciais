@@ -3,7 +3,7 @@ from datetime import datetime
 from crud import *
 from seguranca import *
 import random
-
+##
 #Contas#
 #---------------------------------------------------------------------------------
 ARQ_USUARIOS = "usuarios.txt"

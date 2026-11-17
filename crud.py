@@ -6,7 +6,7 @@ from login import *
 from seguranca import *
 
 #-------------CRUD---------#
-
+##
 
 categoria = {
     "banco": 3,
