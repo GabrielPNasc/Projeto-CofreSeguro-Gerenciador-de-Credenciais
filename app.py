@@ -440,8 +440,12 @@ def main(page: ft.Page):
                 p = str(prompt).lower()
 
                 # Na exclusão, o botão "Sim, excluir" já confirmou: a confirmação
-                # digitada da função é respondida sozinha (só quando há botão).
-                if confirmar and re.search(r"certeza|confirma|s/n|sim/n[ãa]o|deseja mesmo", p):
+                # digitada da função é respondida sozinha. Só depois que a pessoa
+                # respondeu a primeira pergunta E clicou no botão (fluxo.confirmado),
+                # e só se a pergunta for claramente de sim/não. A primeira pergunta
+                # (qual serviço) nunca é respondida sozinha.
+                if (confirmar and fluxo.confirmado
+                        and re.search(r"s/n|sim/n[ãa]o|\(s\)|\[s\]|tem certeza", p)):
                     return "sim" if "sim" in p else "s"
 
                 # "Pressione Enter para continuar" não precisa de campo na janela.
