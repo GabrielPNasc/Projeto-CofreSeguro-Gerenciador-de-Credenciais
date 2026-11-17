@@ -71,4 +71,19 @@ def descriptografar(senha_criptografada):
     fluxo = _fluxo(len(cifrado))
     return bytes(a ^ b for a, b in zip(cifrado, fluxo)).decode()
 
+
+def explicar_forca_senha(senha):
+    nivel = analise_forca_senha(senha)
+
+    if nivel == 0:
+        print("Senha muito fraca. Ela não atingiu o tamanho mínimo exigido.")
+    elif nivel == 1:
+        print("Senha fraca. Ela atingiu o tamanho mínimo, mas não combina letras minúsculas, maiúsculas e números ao mesmo tempo.")
+    elif nivel == 2:
+        print("Senha média: Ela atingiu o tamanho mínimo, mas não combina letras minúsculas, maiúsculas e números, ou não tem caractere special.")
+    elif nivel == 3:
+        print("Senha forte. Ela atingiu o tamanho mínimo e combina letras minúsculas, maiúsculas, números e caracteres especiais.")
+    else:
+        print("Senha inválida.")
+
         

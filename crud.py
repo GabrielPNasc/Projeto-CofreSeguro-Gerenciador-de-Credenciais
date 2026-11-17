@@ -23,10 +23,8 @@ def limpar_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-# ----------------------------------  
 # Adicionar
 def adicionar_credencial(usuario):
-
     limpar_terminal()
     print("Adicionar credencial")
     nome_credencial = input("Digite o nome do serviço: ")
@@ -36,11 +34,16 @@ def adicionar_credencial(usuario):
     consultar_categorias()
     print("-" *15)
 
-    categoria_credencial = int(input("Digite a categoria: "))
-    for i in range(len(categoria)):
-        if categoria_credencial == i + 1:
-            categoria_credencial = list(categoria.keys())[i]
-            break
+    while True:
+        categoria_credencial = int(input("Digite a categoria: "))
+        try:
+            for i in range(len(categoria)):
+                if categoria_credencial == i + 1:
+                    categoria_credencial = list(categoria.keys())[i]
+                    break
+        except ValueError:
+            print("Categoria inválida. Digite um número válido.")
+        break
 
     minimo = categoria[categoria_credencial]
     answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
@@ -50,6 +53,12 @@ def adicionar_credencial(usuario):
         input("Pressione Enter para continuar...")
     else:
         senha_credencial = input("Digite a senha: ")
+        ## Se a senha já estiver cadastrada no credenciais.txt do usuário que está usando, avisar.
+        if os.path.exists(arquivo_user(usuario)):
+            with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
+                for linha_existente in file:
+                    if senha_credencial in descriptografar(linha_existente):
+                        print("ATENÇÃO: Essa senha já está cadastrada.")
 
 
     while True:
@@ -59,17 +68,17 @@ def adicionar_credencial(usuario):
             
             if forca_senha >= categoria[categoria_credencial]:
                 print(f"Senha aceita,nivel:{forca_senha}")
+                explicar_forca_senha(senha_credencial)
                 break
             
             else:
                 print(f"A senha não atende a força mínima exigida para a categoria '{categoria_credencial}'.")
                 senha_credencial = input("Digite uma nova senha: ")
 
-    senha_credencial = criptografar(senha_credencial)
 
     observacoes_credencial = input("Digite observações (opcional): ")
     data_cadastro =datetime.now() # Data do cadastro no formato dd/mm/aaaa 
-
+    senha_credencial = criptografar(senha_credencial)  # Criptografa a senha antes de salvar
     lista = [nome_credencial, usuario_email_credencial, senha_credencial, categoria_credencial, observacoes_credencial, data_cadastro]
     
     #ADICIONARF AO TXT
@@ -95,7 +104,7 @@ def revelar_senha(usuario, senha):
                 if usuario == linha[0]:
                     if senha_confirmacao == descriptografar(linha[1]):
                         if resposta == "s":
-                            print(f"A senha completa é: {senha}")
+                            print(f"A senha completa é: {descriptografar(senha)}")
                             return True
                         elif resposta == "n":
                             print("Senha não revelada.")
@@ -122,12 +131,12 @@ def ler_credenciais(usuario):
                     print("-" * 30)
                     print(f"Nome do serviço: {linha[0]}")
                     print(f"Usuário ou e-mail: {linha[1]}")
-                    print(f"Senha: {descriptografar(linha[2])[:2]}{'*' * (len(linha[2]) - 2)}")  # Mostra apenas os dois primeiros caracteres da senha
+                    print(f"Senha: {descriptografar(linha[2])[:2]}{'*' * (len(descriptografar(linha[2])) - 2)}")  # Mostra apenas os dois primeiros caracteres da senha
                     print(f"Categoria: {linha[3]}")
                     print(f"Observações: {linha[4]}")
                     print(f"Data do último cadastro ou alteração: {linha[5]}")
                     print("-" * 30)
-                    revelar_senha(usuario, descriptografar(linha[2]))  
+                    revelar_senha(usuario, linha[2])  
         input_saida = input("Pressione Enter para continuar...")  
     except FileNotFoundError:
             print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
@@ -184,6 +193,13 @@ def atualizar_credencial(usuario):
                                 input("Pressione Enter para continuar...")
                             else:
                                 nova_senha = input("Digite a senha: ")
+                                ## Se a senha já estiver cadastrada no credenciais.txt, avisar.
+                                if os.path.exists(arquivo_user(usuario)):
+                                    with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
+                                        for linha_existente in file:
+                                            if nova_senha in linha_existente:
+                                                print("ATENÇÃO: Essa senha já está cadastrada.")
+                                explicar_forca_senha(nova_senha)
                             while True:
                                     forca_senha = analise_forca_senha(nova_senha)
                                 
@@ -196,7 +212,9 @@ def atualizar_credencial(usuario):
                                         else:
                                             print(f"A senha não atende a força mínima exigida para a categoria '{linha[3]}'.")
                                             nova_senha = input("Digite uma nova senha: ")
-                                            
+                                    else:
+                                        print("Senha inválida. Tente novamente.")
+                                        nova_senha = input("Digite a senha: ")
                             if input("Tem certeza do que Deseja? (s/n): ").lower() == "s":
                                 linha[2] = criptografar(nova_senha)
                             else:
@@ -250,7 +268,6 @@ def consultar_categorias():
     limpar_terminal()
     for i in range(len(categoria)):
         print(f"[{i + 1}]-Categoria: {list(categoria.keys())[i]}, Força mínima: {categoria[list(categoria.keys())[i]]}")
-
     input_saida = input("Após pressionar Enter, digite o número da categoria.")  
 
 
@@ -284,7 +301,6 @@ def risk_detection(senhas):
         lista = []
         for posicao, senha in enumerate(senhas):
                 if senha in senhas:
-                        senha = descriptografar(senha)
                         if senha not in lista:
                                lista.append(posicao)
                                lista.append(senha)
@@ -360,7 +376,7 @@ def senhas_repetidas(usuario):
     with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
                     for linha in file:
                         linha = linha.strip().split("|")
-                        lista.append(linha[2])
+                        lista.append(descriptografar(linha[2]))
                         
     senha_repetida = risk_detection(lista)
     if senha_repetida == 0:
@@ -368,5 +384,3 @@ def senhas_repetidas(usuario):
     else:
         print(f"Há {int(len(senha_repetida))//2} senhas repetidas.")
     print("-"*30)
-
-
