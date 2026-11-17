@@ -43,7 +43,7 @@ def analise_forca_senha(senha):
             return 1
     else:
         return 0
-
+##
 # ---------- criptografia ----------
 CHAVE = os.getenv("CHAVE_MESTRA")
 M = 0xFFFFFFFFFFFFFFFF
@@ -71,4 +71,4 @@ def descriptografar(senha_criptografada):
     fluxo = _fluxo(len(cifrado))
     return bytes(a ^ b for a, b in zip(cifrado, fluxo)).decode()
 
-        
+        ##
