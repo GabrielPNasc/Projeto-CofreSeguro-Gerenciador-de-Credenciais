@@ -43,7 +43,7 @@ def analise_forca_senha(senha):
             return 1
     else:
         return 0
-
+##
 # ---------- criptografia ----------
 CHAVE = os.getenv("CHAVE_MESTRA")
 M = 0xFFFFFFFFFFFFFFFF
