@@ -94,12 +94,6 @@ while True:
                     if atualizar_credencial(usuario) == True:
                         register_log("Credencial atualizada", usuario)
                 elif opcao == 4:  
-                    consultar_categorias()
-                elif opcao == 5:
-                    limpar_terminal()
-                    if cadastrar_categoria(input("Digite o nome da nova categoria: ").lower()) == True:
-                        register_log("Categoria cadastrada", usuario)
-                elif opcao == 7:
                     if falar_com_agente(nome_arquivo=arquivo_user(usuario),pergunta=input("Digite sua pergunta para o agente: ")) == True:
                         register_log("Usuário falou com o agente", usuario)
                     input("Pressione Enter para continuar...")
