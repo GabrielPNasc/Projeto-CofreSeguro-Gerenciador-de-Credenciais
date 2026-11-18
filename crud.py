@@ -18,10 +18,24 @@ categoria = {
 
 
 
+
+
 def limpar_terminal():
     # 'nt' significa Windows, caso contrário é Linux/Mac
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def servicos_com_senha(usuario, senha):
+    servicos = []
+    if not os.path.exists(arquivo_user(usuario)):
+        return servicos
+    with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
+        for linha in file:
+            linha = linha.strip().split("|")
+            if len(linha) < 3:
+                continue
+            if descriptografar(linha[2]) == senha:
+                servicos.append(linha[0])
+    return servicos
 
 # Adicionar
 def adicionar_credencial(usuario):
@@ -53,12 +67,9 @@ def adicionar_credencial(usuario):
         input("Pressione Enter para continuar...")
     else:
         senha_credencial = input("Digite a senha: ")
-        ## Se a senha já estiver cadastrada no credenciais.txt do usuário que está usando, avisar.
-        if os.path.exists(arquivo_user(usuario)):
-            with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
-                for linha_existente in file:
-                    if senha_credencial in descriptografar(linha_existente):
-                        print("ATENÇÃO: Essa senha já está cadastrada.")
+        repetidos = servicos_com_senha(usuario, senha_credencial)
+        if len(repetidos) > 0:
+            print(f"ATENÇÃO: Essa senha já é usada em: {', '.join(repetidos)}")
 
 
     while True:
@@ -93,27 +104,30 @@ def adicionar_credencial(usuario):
     return True
 
 # Opção de revelar senha para o usuário
-def revelar_senha(usuario, senha):
+def revelar_senha(usuario, senha, servico):
     while True:
         resposta = input("Deseja revelar a senha completa? (s/n): ").lower()
-        # Usuario deverá confirmar senha inicial (do cadastro) para revelar a senha completa
-        senha_confirmacao = input("Digite a senha do seu cadastro inicial para confirmar: ")
-        with open(ARQ_USUARIOS, "r", encoding="utf-8") as file:
-            for linha in file:
-                linha = linha.strip().split("|")
-                if usuario == linha[0]:
-                    if senha_confirmacao == descriptografar(linha[1]):
-                        if resposta == "s":
-                            print(f"A senha completa é: {descriptografar(senha)}")
-                            return True
-                        elif resposta == "n":
-                            print("Senha não revelada.")
-                            return False
-                        else:
-                            print("Opção inválida. Digite 's' para sim ou 'n' para não.")
-                    else:
-                        print("Senha de confirmação incorreta. Tente novamente.")
-                        return False
+        if resposta == "n":
+            print("Senha não revelada.")
+            return False
+        if resposta == "s":
+            break
+        print("Opção inválida. Digite 's' para sim ou 'n' para não.")
+
+    senha_confirmacao = input("Digite a senha do seu cadastro inicial para confirmar: ")
+    with open(ARQ_USUARIOS, "r", encoding="utf-8") as file:
+        for linha in file:
+            linha = linha.strip().split("|")
+            if usuario == linha[0]:
+                if senha_confirmacao == descriptografar(linha[1]):
+                    print(f"A senha completa é: {descriptografar(senha)}")
+                    register_log(f"Senha revelada (serviço: {servico})", usuario)
+                    return True
+                else:
+                    print("Senha de confirmação incorreta.")
+                    register_log(f"Tentativa falha de revelar senha (serviço: {servico})", usuario)
+                    return False
+    return False
                      
 
     
@@ -136,7 +150,7 @@ def ler_credenciais(usuario):
                     print(f"Observações: {linha[4]}")
                     print(f"Data do último cadastro ou alteração: {linha[5]}")
                     print("-" * 30)
-                    revelar_senha(usuario, linha[2])  
+                    revelar_senha(usuario, linha[2], linha[0]) 
         input_saida = input("Pressione Enter para continuar...")  
     except FileNotFoundError:
             print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
@@ -160,14 +174,14 @@ def atualizar_credencial(usuario):
             for linha in file:
                 linha = linha.split("|")
                 print(f"- {linha[0]}")
-        nome_credencial = input("Digite o nome do serviço que deseja atualizar: ")
+        nome_credencial = input("Digite o nome do serviço que deseja atualizar: ").lower()
         with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
                 
                 for linha in file:
                     linha = linha.split("|")
 
 
-                    if nome_credencial == linha[0]:
+                    if nome_credencial == linha[0].lower():
                         linha_antiga = linha.copy()  # Copia a linha antiga para comparação posterior
                         print("[1] Nome")
                         print("[2] Usuário")
@@ -194,11 +208,9 @@ def atualizar_credencial(usuario):
                             else:
                                 nova_senha = input("Digite a senha: ")
                                 ## Se a senha já estiver cadastrada no credenciais.txt, avisar.
-                                if os.path.exists(arquivo_user(usuario)):
-                                    with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
-                                        for linha_existente in file:
-                                            if nova_senha in linha_existente:
-                                                print("ATENÇÃO: Essa senha já está cadastrada.")
+                                repetidos = servicos_com_senha(usuario, nova_senha)
+                                if len(repetidos) > 0:
+                                    print(f"ATENÇÃO: Essa senha já é usada em: {', '.join(repetidos)}")
                                 explicar_forca_senha(nova_senha)
                             while True:
                                     forca_senha = analise_forca_senha(nova_senha)
@@ -367,20 +379,154 @@ def agente(usuario):
 
 
 
+# Além de detectar senhas repetidas, tem que avisar ao usuário quais os serviços têm senhas repetidas. Por exemplo, se o usuário cadastrou a mesma senha para o serviço "Facebook" e "Instagram", o sistema deve alertar que essas duas credenciais têm a mesma senha.
 
+SENHAS_COMUNS = [
+    "123456", "12345678", "123456789", "password", "senha", "senha123",
+    "qwerty", "abc123", "111111", "123123", "admin", "iloveyou",
+    "letmein", "welcome", "000000", "654321", "1234", "12345",
+]
 
 def senhas_repetidas(usuario):
     limpar_terminal()
     print("-"*30)
-    lista = []
-    with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
-                    for linha in file:
-                        linha = linha.strip().split("|")
-                        lista.append(descriptografar(linha[2]))
-                        
-    senha_repetida = risk_detection(lista)
-    if senha_repetida == 0:
+
+    servicos = []
+    senhas = []
+    try:
+        with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
+            for linha in file:
+                linha = linha.strip().split("|")
+                if len(linha) < 3:
+                    continue
+                servicos.append(linha[0])
+                senhas.append(descriptografar(linha[2]))
+    except FileNotFoundError:
+        print("Nenhuma credencial cadastrada.")
+        input("Pressione Enter para continuar...")
+        return
+
+    ja_agrupados = []
+    encontrou = False
+
+    for i in range(len(senhas)):
+        if i in ja_agrupados:
+            continue
+        grupo = [servicos[i]]
+        for j in range(i + 1, len(senhas)):
+            if senhas[j] == senhas[i]:
+                grupo.append(servicos[j])
+                ja_agrupados.append(j)
+        if len(grupo) > 1:
+            encontrou = True
+            print(f"⚠ Mesma senha em: {', '.join(grupo)}")
+
+    if not encontrou:
         print("Não há senha repetida.")
-    else:
-        print(f"Há {int(len(senha_repetida))//2} senhas repetidas.")
+
     print("-"*30)
+    input("Pressione Enter para continuar...")
+
+def register_log(acao, usuario):
+    with open("log.txt", "a", encoding="utf-8") as file:
+        data_hora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        file.write(f"{data_hora}|{usuario}|{acao}\n")
+
+def consultar_log(usuario):
+    limpar_terminal()
+    print("-" * 30)
+    print("Histórico de ações")
+    print("-" * 30)
+
+    encontrou = False
+    try:
+        with open("log.txt", "r", encoding="utf-8") as file:
+            for linha in file:
+                partes = linha.strip().split("|")
+                if len(partes) < 3:      # ignora linhas do formato antigo
+                    continue
+                if partes[1] == usuario:
+                    print(f"{partes[0]} - {partes[2]}")
+                    encontrou = True
+    except FileNotFoundError:
+        pass
+
+    if not encontrou:
+        print("Nenhum registro encontrado.")
+
+    print("-" * 30)
+    input("Pressione Enter para continuar...")
+
+def resumo_seguranca(usuario):
+    limpar_terminal()
+
+    servicos = []
+    senhas = []
+    datas = []
+    try:
+        with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
+            for linha in file:
+                linha = linha.strip().split("|")
+                if len(linha) < 6:
+                    continue
+                servicos.append(linha[0])
+                senhas.append(descriptografar(linha[2]))
+                datas.append(linha[5])
+    except FileNotFoundError:
+        pass
+
+    print("-" * 30)
+    print("Resumo de segurança")
+    print("-" * 30)
+
+    if len(senhas) == 0:
+        print("Nenhuma credencial cadastrada.")
+        print("-" * 30)
+        input("Pressione Enter para continuar...")
+        return
+
+    # fracas
+    fracas = 0
+    for senha in senhas:
+        forca = analise_forca_senha(senha)
+        if forca is None or forca <= 1:
+            fracas += 1
+
+    # repetidas (conta as credenciais cuja senha aparece em mais de uma)
+    repetidas = 0
+    for i in range(len(senhas)):
+        for j in range(len(senhas)):
+            if i != j and senhas[i] == senhas[j]:
+                repetidas += 1
+                break
+
+    # comuns
+    comuns = 0
+    for senha in senhas:
+        if senha.lower() in SENHAS_COMUNS:
+            comuns += 1
+
+    print(f"Credenciais cadastradas: {len(senhas)}")
+    print(f"Senhas fracas: {fracas}")
+    print(f"Senhas repetidas: {repetidas}")
+    print(f"Senhas na lista de senhas comuns: {comuns}")
+    print("-" * 30)
+    print("Tempo sem alterar cada senha ou tempo feito há cada alteração:")
+
+    agora = datetime.now()
+    for i in range(len(servicos)):
+        try:
+            data = datetime.strptime(datas[i].split(".")[0], "%Y-%m-%d %H:%M:%S")
+            dias = (agora - data).days
+            if dias == 0:
+                tempo = "hoje"
+            elif dias == 1:
+                tempo = "há 1 dia"
+            else:
+                tempo = f"há {dias} dias"
+        except ValueError:
+            tempo = "data inválida"
+        print(f"- {servicos[i]}: {tempo}")
+
+    print("-" * 30)
+    input("Pressione Enter para continuar...")
