@@ -171,102 +171,103 @@ def atualizar_credencial(usuario):
         print("-" * 30)
         print("Serviços cadastrados:")
         with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
-            for linha in file:
-                linha = linha.split("|")
-                print(f"- {linha[0]}")
-        nome_credencial = input("Digite o nome do serviço que deseja atualizar: ").lower()
-        with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
-                
-                for linha in file:
-                    linha = linha.split("|")
+            linhas = file.readlines()
 
+        for i, l in enumerate(linhas):
+            print(f"{i + 1} - {l.split('|')[0]}")
 
-                    if nome_credencial == linha[0].lower():
-                        linha_antiga = linha.copy()  # Copia a linha antiga para comparação posterior
-                        print("[1] Nome")
-                        print("[2] Usuário")
-                        print("[3] Senha")
-                        print("[4] Categoria")
-                        print("[5] Observações")
-                        credencial = input("Digite o campo que deseja atualizar: ").lower()
+        try:
+            numero = int(input("Digite o número do serviço que deseja atualizar: "))
+        except ValueError:
+            print("Digite um número válido.")
+            sleep(2)
+            return False
 
-                        if credencial == "1":
-                            nova_credencial = input("Digite o novo nome do serviço: ")
-                            linha[0] = nova_credencial
-                            
+        if numero < 1 or numero > len(linhas):
+            print("Serviço não encontrado!")
+            sleep(2)
+            return False
 
-                        elif credencial == "2":
-                            novo_usuario = input("Digite o novo usuário ou e-mail: ")
-                            linha[1] = novo_usuario
+        linha = linhas[numero - 1].strip().split("|")
 
-                        elif credencial == "3":
-                            answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
-                            if answer == 1:
-                                nova_senha = create_password()
-                                print(f"Sua senha gerada é: {nova_senha}")
-                                input("Pressione Enter para continuar...")
-                            else:
-                                nova_senha = input("Digite a senha: ")
-                                ## Se a senha já estiver cadastrada no credenciais.txt, avisar.
-                                repetidos = servicos_com_senha(usuario, nova_senha)
-                                if len(repetidos) > 0:
-                                    print(f"ATENÇÃO: Essa senha já é usada em: {', '.join(repetidos)}")
-                                explicar_forca_senha(nova_senha)
-                            while True:
-                                    forca_senha = analise_forca_senha(nova_senha)
-                                
-                                    if forca_senha in [1,2,3]:
-                                        
-                                        if forca_senha >= categoria[linha[3]]:
-                                            print(f"Senha aceita,nivel:{forca_senha}")
-                                            break
-                                        
-                                        else:
-                                            print(f"A senha não atende a força mínima exigida para a categoria '{linha[3]}'.")
-                                            nova_senha = input("Digite uma nova senha: ")
-                                    else:
-                                        print("Senha inválida. Tente novamente.")
-                                        nova_senha = input("Digite a senha: ")
-                            if input("Tem certeza do que Deseja? (s/n): ").lower() == "s":
-                                linha[2] = criptografar(nova_senha)
-                            else:
-                                print("Atualização de senha cancelada.")
-                                return  False
-                        
+        print("[1] Nome")
+        print("[2] Usuário")
+        print("[3] Senha")
+        print("[4] Categoria")
+        print("[5] Observações")
+        credencial = input("Digite o campo que deseja atualizar: ")
 
-                        elif credencial == "4":
-                            nova_categoria = input("Digite a nova categoria: ").lower()
+        if credencial == "1":
+            nova_credencial = input("Digite o novo nome do serviço: ")
+            linha[0] = nova_credencial
 
-                            if nova_categoria not in categoria:
-                                print("Categoria não existe. Deseja cadastrar essa nova categoria? (s/n)")
+        elif credencial == "2":
+            novo_usuario = input("Digite o novo usuário ou e-mail: ")
+            linha[1] = novo_usuario
 
-                                if input().lower() == "s":
-                                    cadastrar_categoria(nova_categoria)
+        elif credencial == "3":
+            answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
+            if answer == 1:
+                nova_senha = create_password()
+                print(f"Sua senha gerada é: {nova_senha}")
+                input("Pressione Enter para continuar...")
+            else:
+                nova_senha = input("Digite a senha: ")
+                ## Se a senha já estiver cadastrada no credenciais.txt, avisar.
+                repetidos = servicos_com_senha(usuario, nova_senha)
+                if len(repetidos) > 0:
+                    print(f"ATENÇÃO: Essa senha já é usada em: {', '.join(repetidos)}")
+                explicar_forca_senha(nova_senha)
+            while True:
+                forca_senha = analise_forca_senha(nova_senha)
 
-                                else:
-                                    nova_categoria = "outros"
-                                    print("A credencial foi colocada em 'outros'.")
+                if forca_senha in [1, 2, 3]:
+                    if forca_senha >= categoria[linha[3]]:
+                        print(f"Senha aceita,nivel:{forca_senha}")
+                        break
+                    else:
+                        print(f"A senha não atende a força mínima exigida para a categoria '{linha[3]}'.")
+                        nova_senha = input("Digite uma nova senha: ")
+                else:
+                    print("Senha inválida. Tente novamente.")
+                    nova_senha = input("Digite a senha: ")
+            if input("Tem certeza do que Deseja? (s/n): ").lower() == "s":
+                linha[2] = criptografar(nova_senha)
+            else:
+                print("Atualização de senha cancelada.")
+                return False
 
-                            linha[3] = nova_categoria
-                        elif credencial == "5":
-                            novas_observacoes = input("Digite as novas observações: ")
-                            linha[4] = novas_observacoes
+        elif credencial == "4":
+            nova_categoria = input("Digite a nova categoria: ").lower()
 
-                        data_cadastro =datetime.now()
-                        linha[5] = str(data_cadastro)
-                    
-                        print("Credencial atualizada com sucesso!")
-                    
-                        with open(arquivo_user(usuario), "r", encoding="utf-8") as file:#ler todas as linhas do arquivo e guarda numna lista
-                            linhas = file.readlines()
+            if nova_categoria not in categoria:
+                print("Categoria não existe. Deseja cadastrar essa nova categoria? (s/n)")
 
-                        with open(arquivo_user(usuario), "w", encoding="utf-8") as file:
-                            for l in linhas:# vai passar por todas as linhas do arquivo e vai escrever no arquivo novamente, mas se a linha for a que foi atualizada, ele escreve a nova linha
-                                
-                                if l.strip() != "|".join(linha_antiga).strip():#se NAO FOR A LINHA antiga,ele escreve a linha do arquivo
-                                    file.write(l)
-                                else:#SE FOR A LINHA DO ARQUIVO, ELE ESCREVE A LINHA ATUALIZADA
-                                    file.write("|".join(linha) )
+                if input().lower() == "s":
+                    cadastrar_categoria(nova_categoria)
+                else:
+                    nova_categoria = "outros"
+                    print("A credencial foi colocada em 'outros'.")
+
+            linha[3] = nova_categoria
+
+        elif credencial == "5":
+            novas_observacoes = input("Digite as novas observações: ")
+            linha[4] = novas_observacoes
+
+        else:
+            print("Opção inválida.")
+            sleep(2)
+            return False
+
+        linha[5] = str(datetime.now())
+
+        linhas[numero - 1] = "|".join(linha) + "\n"
+        with open(arquivo_user(usuario), "w", encoding="utf-8") as file:
+            file.writelines(linhas)
+
+        print("Credencial atualizada com sucesso!")
+        sleep(2)
         return True
     except FileNotFoundError:
         print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
@@ -333,35 +334,40 @@ def excluir_credencial(usuario):
         print("Serviços cadastrados:")
         with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
             linhas = file.readlines()
-            nome = []
-            for linha in linhas:
-                linha = linha.split("|")
-                nome.append(linha[0].lower())
-                print(f"- {linha[0]}")
-        nome_credencial = input("Digite o nome do serviço que deseja excluir: ").lower()
-        if nome_credencial not in nome:
+
+        for i, linha in enumerate(linhas):
+            print(f"{i + 1} - {linha.split('|')[0]}")
+
+        try:
+            numero = int(input("Digite o número do serviço que deseja excluir: "))
+        except ValueError:
+            print("Digite um número válido.")
+            sleep(2)
+            return False
+
+        if numero < 1 or numero > len(linhas):
             print("Serviço não encontrado!")
             sleep(2)
+            return False
 
+        nome_servico = linhas[numero - 1].split("|")[0]
+
+        confirmacao = input("Você tem certeza que deseja excluir ? [s/n]").lower()
+        if confirmacao == "s":
+            del linhas[numero - 1]
+            with open(arquivo_user(usuario), "w", encoding="utf-8") as file:
+                file.writelines(linhas)
+            print(f"Credencial '{nome_servico}' excluída com sucesso!")
+            sleep(2)
+            return True
         else:
-            confirmacao = input("Você tem certeza que deseja excluir ? [s/n]").lower()
-            if confirmacao == "s":
-                with open(arquivo_user(usuario), "w", encoding="utf-8") as file:
-                    for linha in linhas:
-                        if linha.strip().split("|")[0].lower() != nome_credencial:
-                            file.write(linha)
-                        else:
-                            print(f"Credencial '{nome_credencial}' excluída com sucesso!")
-                            sleep(2)
-                            return True
-            else:
-                print("Exclusão cancelada!")
-                sleep(2)
-                return False
+            print("Exclusão cancelada!")
+            sleep(2)
+            return False
     except FileNotFoundError:
-                print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
-                input("Pressione Enter para continuar...")
-                return False
+        print("Arquivo de credenciais não encontrado. Cadastre uma credencial primeiro.")
+        input("Pressione Enter para continuar...")
+        return False
 
 
 
