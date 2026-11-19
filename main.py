@@ -65,7 +65,7 @@ while True:
 
         else:
             senha = input("Digite a senha: ")
-        
+
         cadastrar_conta(usuario, senha)
 
     elif menu_opcao == 2:
@@ -87,9 +87,9 @@ while True:
                     if atualizar_credencial(usuario) == True:
                         register_log("Credencial atualizada", usuario)
                 elif opcao == 4:  
-                    consultar_categorias(usuario)
+                    consultar_categorias()
                 elif opcao == 5:
-                    cadastrar_categoria(usuario)
+                    cadastrar_categoria(input("Digite o nome da categoria: "))
                 elif opcao == 6:
                     if excluir_credencial(usuario) == True:
                         register_log("Credencial excluída", usuario)
