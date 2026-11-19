@@ -78,25 +78,29 @@ while True:
                 opcao = menu()
                 if opcao == 10:
                     break
-                elif opcao == 9:
-                    resumo_seguranca(usuario)
-                elif opcao == 8:
-                    consultar_log(usuario)
                 elif opcao == 1:
                     if adicionar_credencial(usuario) == True:
                         register_log("Credencial adicionada", usuario)
                 elif opcao == 2:
                     ler_credenciais(usuario)
-                elif opcao == 6:
-                    if excluir_credencial(usuario) == True:
-                        register_log("Credencial excluída", usuario)
                 elif opcao == 3:
                     if atualizar_credencial(usuario) == True:
                         register_log("Credencial atualizada", usuario)
                 elif opcao == 4:  
+                    consultar_categorias(usuario)
+                elif opcao == 5:
+                    cadastrar_categoria(usuario)
+                elif opcao == 6:
+                    if excluir_credencial(usuario) == True:
+                        register_log("Credencial excluída", usuario)
+                elif opcao == 7:
                     if falar_com_agente(nome_arquivo=arquivo_user(usuario),pergunta=input("Digite sua pergunta para o agente: ")) == True:
                         register_log("Usuário falou com o agente", usuario)
                     input("Pressione Enter para continuar...")
+                elif opcao == 9:
+                    resumo_seguranca(usuario)
+                elif opcao == 8:
+                    consultar_log(usuario)
 
         
     elif menu_opcao == 3:
