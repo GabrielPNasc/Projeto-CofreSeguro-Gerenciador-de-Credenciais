@@ -37,47 +37,55 @@ def servicos_com_senha(usuario, senha):
                 servicos.append(linha[0])
     return servicos
 
-# Adicionar
 def adicionar_credencial(usuario):
     limpar_terminal()
     print("Adicionar credencial")
     nome_credencial = input("Digite o nome do serviço: ")
     usuario_email_credencial = input("Digite o usuário ou e-mail: ")
-    # Mostra as categorias existentes e a força mínima de cada uma
     print("-" *15)
     consultar_categorias()
     print("-" *15)
 
     while True:
-        categoria_credencial = int(input("Digite a categoria: "))
         try:
+            categoria_credencial = int(input("Digite a categoria: "))
             for i in range(len(categoria)):
                 if categoria_credencial == i + 1:
                     categoria_credencial = list(categoria.keys())[i]
                     break
         except ValueError:
             print("Categoria inválida. Digite um número válido.")
+            sleep(2)
+            categoria_credencial = int(input("Digite a categoria: "))
         break
-
-    minimo = categoria[categoria_credencial]
-    answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
+    try:
+        answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
+    except ValueError:
+        print("Opção inválida. Digite um número válido.")
+        sleep(2)
+        answer = int(input("[1]-Gerar senha Forte Automaticamente\n[2]-Criar senha manualmente\nEscolha uma opção: "))
     if answer == 1:
         senha_credencial = create_password()
         print(f"Sua senha gerada é: {senha_credencial}")
         input("Pressione Enter para continuar...")
-    else:
+    elif answer == 2:   
         senha_credencial = input("Digite a senha: ")
         repetidos = servicos_com_senha(usuario, senha_credencial)
         if len(repetidos) > 0:
             print(f"ATENÇÃO: Essa senha já é usada em: {', '.join(repetidos)}")
+    else:
+        print("Opção inválida!")
+        senha_credencial = input("Digite a senha: ")
 
 
     while True:
         forca_senha = analise_forca_senha(senha_credencial)
-       
+        print(categoria[categoria_credencial])
+        print(categoria_credencial)
         if forca_senha in [1,2,3]:
             
             if forca_senha >= categoria[categoria_credencial]:
+
                 print(f"Senha aceita,nivel:{forca_senha}")
                 explicar_forca_senha(senha_credencial)
                 break
@@ -449,8 +457,6 @@ def consultar_log(usuario):
         with open("log.txt", "r", encoding="utf-8") as file:
             for linha in file:
                 partes = linha.strip().split("|")
-                if len(partes) < 3:      # ignora linhas do formato antigo
-                    continue
                 if partes[1] == usuario:
                     print(f"{partes[0]} - {partes[2]}")
                     encontrou = True
@@ -473,8 +479,6 @@ def resumo_seguranca(usuario):
         with open(arquivo_user(usuario), "r", encoding="utf-8") as file:
             for linha in file:
                 linha = linha.strip().split("|")
-                if len(linha) < 6:
-                    continue
                 servicos.append(linha[0])
                 senhas.append(descriptografar(linha[2]))
                 datas.append(linha[5])
@@ -491,14 +495,14 @@ def resumo_seguranca(usuario):
         input("Pressione Enter para continuar...")
         return
 
-    # fracas
+
     fracas = 0
     for senha in senhas:
         forca = analise_forca_senha(senha)
-        if forca is None or forca <= 1:
+        if forca == 1:
             fracas += 1
 
-    # repetidas (conta as credenciais cuja senha aparece em mais de uma)
+   
     repetidas = 0
     for i in range(len(senhas)):
         for j in range(len(senhas)):
@@ -506,7 +510,7 @@ def resumo_seguranca(usuario):
                 repetidas += 1
                 break
 
-    # comuns
+
     comuns = 0
     for senha in senhas:
         if senha.lower() in SENHAS_COMUNS:
@@ -521,18 +525,13 @@ def resumo_seguranca(usuario):
 
     agora = datetime.now()
     for i in range(len(servicos)):
-        try:
             data = datetime.strptime(datas[i].split(".")[0], "%Y-%m-%d %H:%M:%S")
             dias = (agora - data).days
             if dias == 0:
                 tempo = "hoje"
-            elif dias == 1:
-                tempo = "há 1 dia"
             else:
                 tempo = f"há {dias} dias"
-        except ValueError:
-            tempo = "data inválida"
-        print(f"- {servicos[i]}: {tempo}")
+            print(f"- {servicos[i]}: {tempo}")
 
     print("-" * 30)
     input("Pressione Enter para continuar...")
